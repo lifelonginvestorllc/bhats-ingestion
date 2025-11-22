@@ -1,6 +1,7 @@
 package com.example.payload;
 
 import jakarta.annotation.PostConstruct;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Sinks;
@@ -9,6 +10,7 @@ import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 @Service
@@ -19,6 +21,11 @@ public class PayloadService {
     private StatusTracker tracker;
     private final Sinks.Many<String> onCompleteSink = Sinks.many().unicast().onBackpressureBuffer();
     private final AtomicBoolean started = new AtomicBoolean(false);
+    @Value("${payload.randomFailures:false}")
+    private boolean randomFailures;
+    private final AtomicInteger completedPayloads = new AtomicInteger(0);
+    private final AtomicInteger successfulPayloads = new AtomicInteger(0);
+    private final List<String> successfulPayloadIds = Collections.synchronizedList(new ArrayList<>());
 
     // Default constructor used by Spring - creates a fixed thread pool (non-daemon) for workers.
     public PayloadService() {
@@ -75,6 +82,18 @@ public class PayloadService {
         }
     }
 
+    public int getCompletedPayloads() {
+        return completedPayloads.get();
+    }
+
+    public int getSuccessfulPayloadsCount() {
+        return successfulPayloads.get();
+    }
+
+    public List<String> getSuccessfulPayloadIds() {
+        return new ArrayList<>(successfulPayloadIds);
+    }
+
     private void workerLoop(BlockingQueue<PayloadBatch> queue) {
         while (true) {
             try {
@@ -95,7 +114,7 @@ public class PayloadService {
         System.out.printf("Processing payload %s, key %s, batch %d with %d records%n",
                 batch.payloadId, batch.key, batch.index, batch.records.size());
 
-        if (Math.random() < 0.05) {
+        if (randomFailures && Math.random() < 0.05) {
             throw new RuntimeException("Simulated failure");
         }
     }
@@ -104,5 +123,10 @@ public class PayloadService {
         boolean success = tracker.isSuccessful(payloadId);
         System.out.printf("Payload %s COMPLETED. Status: %s%n", payloadId, success ? "SUCCESS" : "FAILURE");
         tracker.remove(payloadId);
+        completedPayloads.incrementAndGet();
+        if (success) {
+            successfulPayloads.incrementAndGet();
+            successfulPayloadIds.add(payloadId);
+        }
     }
 }

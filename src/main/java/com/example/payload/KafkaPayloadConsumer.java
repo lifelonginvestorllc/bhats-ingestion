@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Component
@@ -14,10 +15,12 @@ public class KafkaPayloadConsumer {
     private PayloadService payloadService;
 
     @KafkaListener(topics = "payload-topic", groupId = "payload-group")
-    public void listen(ConsumerRecord<String, List<Record>> record) {
+    public void listen(ConsumerRecord<String, Record[]> record) {
         String payloadId = "payload-" + System.currentTimeMillis() + "-" + record.key();
         try {
-            payloadService.submitLargePayload(payloadId, record.value());
+            Record[] array = record.value();
+            List<Record> list = Arrays.asList(array);
+            payloadService.submitLargePayload(payloadId, list);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }

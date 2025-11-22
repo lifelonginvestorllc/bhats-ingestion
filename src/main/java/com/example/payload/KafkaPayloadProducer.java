@@ -12,9 +12,9 @@ public class KafkaPayloadProducer {
     private static final String TOPIC = "payload-topic";
 
     @Autowired
-    private KafkaTemplate<String, List<Record>> kafkaTemplate;
+    private KafkaTemplate<String, Record[]> kafkaTemplate;
 
     public void send(String key, List<Record> records) {
-        kafkaTemplate.send(TOPIC, key, records);
+        kafkaTemplate.send(TOPIC, key, records.toArray(new Record[0]));
     }
 }
