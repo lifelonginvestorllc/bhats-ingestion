@@ -152,7 +152,8 @@ public class PayloadService {
         }
         int batchSize = payloadBatchSizes.getOrDefault(payloadId, 0);
         if (kafkaPayloadProducer != null) {
-            kafkaPayloadProducer.sendStatus(new PayloadCompletionStatus(payloadId, success, batchSize));
+            // send single status; three consumer groups will each create their own cluster-tagged reply
+            kafkaPayloadProducer.sendStatus(new PayloadCompletionStatus(payloadId, success, batchSize, null));
         }
         payloadBatchSizes.remove(payloadId); // cleanup
     }
