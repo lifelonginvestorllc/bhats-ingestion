@@ -1,6 +1,6 @@
 package com.example.payload;
 
-public class Record {
+public class TSValues {
     public String key;
     public String value;
 }

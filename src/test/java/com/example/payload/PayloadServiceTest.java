@@ -29,9 +29,9 @@ public class PayloadServiceTest {
 
         try {
             for (int p = 1; p <= 3; p++) {
-                List<Record> records = new ArrayList<>();
+                List<TSValues> records = new ArrayList<>();
                 for (int i = 0; i < 100; i++) {
-                    Record r = new Record();
+                    TSValues r = new TSValues();
                     r.key = "key" + (i % 10);  // 10 different keys
                     r.value = "value" + i;
                     records.add(r);

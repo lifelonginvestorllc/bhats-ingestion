@@ -60,10 +60,10 @@ public class KafkaFailureIntegrationTest {
     public void testForcedFailurePayload() {
         statusStore.clear();
         String payloadId = "failure-payload";
-        List<Record> records = new ArrayList<>();
+        List<TSValues> records = new ArrayList<>();
         // Ensure key3 appears so forced failure triggers at least one batch
         for (int i = 0; i < 50; i++) {
-            Record r = new Record();
+            TSValues r = new TSValues();
             r.key = "key" + (i % 10); // includes key3
             r.value = "value" + i;
             records.add(r);

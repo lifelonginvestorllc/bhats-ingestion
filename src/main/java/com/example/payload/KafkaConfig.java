@@ -45,14 +45,14 @@ public class KafkaConfig {
     }
 
     @Bean
-    public ConsumerFactory<String, Record[]> consumerFactory() {
+    public ConsumerFactory<String, TSValues[]> consumerFactory() {
         Map<String, Object> props = new HashMap<>();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         props.put(ConsumerConfig.GROUP_ID_CONFIG, "payload-group");
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
 
-        JsonDeserializer<Record[]> deserializer = new JsonDeserializer<>(Record[].class);
+        JsonDeserializer<TSValues[]> deserializer = new JsonDeserializer<>(TSValues[].class);
         deserializer.addTrustedPackages("*");
         deserializer.ignoreTypeHeaders(); // we don't rely on type headers for generic List
 
@@ -64,15 +64,15 @@ public class KafkaConfig {
     }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, Record[]> kafkaListenerContainerFactory() {
-        ConcurrentKafkaListenerContainerFactory<String, Record[]> factory =
+    public ConcurrentKafkaListenerContainerFactory<String, TSValues[]> kafkaListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, TSValues[]> factory =
             new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory());
         return factory;
     }
 
     @Bean
-    public ProducerFactory<String, Record[]> producerFactory() {
+    public ProducerFactory<String, TSValues[]> producerFactory() {
         Map<String, Object> props = new HashMap<>();
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
@@ -81,7 +81,7 @@ public class KafkaConfig {
     }
 
     @Bean
-    public KafkaTemplate<String, Record[]> kafkaTemplate() {
+    public KafkaTemplate<String, TSValues[]> kafkaTemplate() {
         return new KafkaTemplate<>(producerFactory());
     }
 

@@ -15,7 +15,7 @@ public class KafkaPayloadProducer {
     private static final String REPLY_TOPIC = "payload-status";
 
     @Autowired
-    private KafkaTemplate<String, Record[]> kafkaTemplate;
+    private KafkaTemplate<String, TSValues[]> kafkaTemplate;
 
     @Autowired
     private org.springframework.kafka.core.KafkaTemplate<String, PayloadCompletionStatus> statusKafkaTemplate;
@@ -24,8 +24,8 @@ public class KafkaPayloadProducer {
 
     private final ConcurrentMap<String, ClusterStatusAggregator> multiClusterStatus = new ConcurrentHashMap<>();
 
-    public void send(String key, List<Record> records) {
-        kafkaTemplate.send(REQUEST_TOPIC, key, records.toArray(new Record[0]));
+    public void send(String key, List<TSValues> records) {
+        kafkaTemplate.send(REQUEST_TOPIC, key, records.toArray(new TSValues[0]));
         // initialize aggregator expecting 3 cluster replies (configurable later)
         multiClusterStatus.computeIfAbsent(key, id -> new ClusterStatusAggregator(3));
     }

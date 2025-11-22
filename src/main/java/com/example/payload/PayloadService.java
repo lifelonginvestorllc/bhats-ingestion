@@ -82,15 +82,15 @@ public class PayloadService {
         return Math.abs(key.hashCode() % NUM_QUEUES);
     }
 
-    public void submitLargePayload(String payloadId, List<Record> records) throws InterruptedException {
-        Map<String, List<Record>> grouped = records.stream()
+    public void submitLargePayload(String payloadId, List<TSValues> records) throws InterruptedException {
+        Map<String, List<TSValues>> grouped = records.stream()
                 .collect(Collectors.groupingBy(r -> r.key));
 
         int index = 0;
         tracker.init(payloadId, grouped.size());
         payloadBatchSizes.put(payloadId, grouped.size()); // track batch size per payload
 
-        for (Map.Entry<String, List<Record>> entry : grouped.entrySet()) {
+        for (Map.Entry<String, List<TSValues>> entry : grouped.entrySet()) {
             String key = entry.getKey();
             int queueId = route(key);
             PayloadBatch batch = new PayloadBatch(payloadId, index++, key, entry.getValue());

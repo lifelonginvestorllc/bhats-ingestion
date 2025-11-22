@@ -15,11 +15,11 @@ public class KafkaPayloadConsumer {
     private PayloadService payloadService;
 
     @KafkaListener(topics = "payload-topic", groupId = "payload-group")
-    public void listen(ConsumerRecord<String, Record[]> record) {
+    public void listen(ConsumerRecord<String, TSValues[]> record) {
         String payloadId = record.key(); // use producer-provided key as stable payloadId
         try {
-            Record[] array = record.value();
-            List<Record> list = Arrays.asList(array);
+            TSValues[] array = record.value();
+            List<TSValues> list = Arrays.asList(array);
             payloadService.submitLargePayload(payloadId, list);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();

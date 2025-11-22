@@ -52,9 +52,9 @@ public class PayloadServiceShutdownTest {
     @Test
     void testNoProcessingAfterShutdown() throws InterruptedException {
         String payloadId = "shutdown-test";
-        List<Record> records = new ArrayList<>();
+        List<TSValues> records = new ArrayList<>();
         for (int i = 0; i < 50; i++) {
-            Record r = new Record();
+            TSValues r = new TSValues();
             r.key = "key" + (i % 5);
             r.value = "value" + i;
             records.add(r);

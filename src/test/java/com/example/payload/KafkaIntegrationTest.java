@@ -63,9 +63,9 @@ public class KafkaIntegrationTest {
         int expectedBatchSize = 10; // keys: key0..key9
         List<String> payloadIds = new ArrayList<>();
         for (int p = 1; p <= payloadCount; p++) {
-            List<Record> records = new ArrayList<>();
+            List<TSValues> records = new ArrayList<>();
             for (int i = 0; i < 100; i++) {
-                Record r = new Record();
+                TSValues r = new TSValues();
                 r.key = "key" + (i % 10);
                 r.value = "value" + i;
                 records.add(r);

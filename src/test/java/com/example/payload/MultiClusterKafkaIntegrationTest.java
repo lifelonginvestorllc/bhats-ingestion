@@ -58,9 +58,9 @@ public class MultiClusterKafkaIntegrationTest {
     @Test
     void testAggregatedMultiClusterStatus() {
         String payloadId = "multi-cluster-1";
-        List<Record> records = new ArrayList<>();
+        List<TSValues> records = new ArrayList<>();
         for (int i = 0; i < 100; i++) {
-            Record r = new Record();
+            TSValues r = new TSValues();
             r.key = "key" + (i % 10);
             r.value = "value" + i;
             records.add(r);
