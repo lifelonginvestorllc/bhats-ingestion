@@ -7,13 +7,13 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 public class StatusStore {
-    private final Map<String, PayloadCompletionStatus> statuses = new ConcurrentHashMap<>();
+    private final Map<String, CompletionStatus> statuses = new ConcurrentHashMap<>();
 
-    public void add(PayloadCompletionStatus status) {
+    public void add(CompletionStatus status) {
         statuses.put(status.payloadId, status);
     }
 
-    public Map<String, PayloadCompletionStatus> getAll() {
+    public Map<String, CompletionStatus> getAll() {
         return statuses;
     }
 
@@ -21,7 +21,7 @@ public class StatusStore {
         return statuses.size();
     }
 
-    public PayloadCompletionStatus get(String payloadId) {
+    public CompletionStatus get(String payloadId) {
         return statuses.get(payloadId);
     }
 

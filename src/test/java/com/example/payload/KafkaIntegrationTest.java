@@ -82,7 +82,7 @@ public class KafkaIntegrationTest {
         assertEquals(payloadCount, payloadService.getCompletedPayloads(), "All payloads should be completed");
         assertEquals(payloadCount, payloadService.getSuccessfulPayloadsCount(), "All payloads should be successful");
         payloadIds.forEach(id -> {
-            PayloadCompletionStatus s = statusStore.get(id);
+            CompletionStatus s = statusStore.get(id);
             assertEquals(expectedBatchSize, s.batchCount, "Batch size should equal number of distinct keys");
             assertTrue(s.success, "Payload should be successful: " + id);
         });

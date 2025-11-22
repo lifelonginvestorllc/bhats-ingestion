@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 @Service
 public class PayloadService {
     private final int NUM_QUEUES = 4;
-    private final Map<Integer, BlockingQueue<PayloadBatch>> queueMap = new HashMap<>();
+    private final Map<Integer, BlockingQueue<SubBatch>> queueMap = new HashMap<>();
     private final ExecutorService executorService;
     private StatusTracker tracker;
     private final Sinks.Many<String> onCompleteSink = Sinks.many().unicast().onBackpressureBuffer();
@@ -66,7 +66,7 @@ public class PayloadService {
         }
         tracker = new StatusTracker(onCompleteSink);
         for (int i = 0; i < NUM_QUEUES; i++) {
-            BlockingQueue<PayloadBatch> queue = new LinkedBlockingQueue<>(100);
+            BlockingQueue<SubBatch> queue = new LinkedBlockingQueue<>(100);
             queueMap.put(i, queue);
             int idx = i;
             executorService.submit(() -> workerLoop(queueMap.get(idx)));
@@ -93,7 +93,7 @@ public class PayloadService {
         for (Map.Entry<String, List<TSValues>> entry : grouped.entrySet()) {
             String key = entry.getKey();
             int queueId = route(key);
-            PayloadBatch batch = new PayloadBatch(payloadId, index++, key, entry.getValue());
+            SubBatch batch = new SubBatch(payloadId, index++, key, entry.getValue());
             queueMap.get(queueId).put(batch);
         }
     }
@@ -110,18 +110,18 @@ public class PayloadService {
         return new ArrayList<>(successfulPayloadIds);
     }
 
-    private void workerLoop(BlockingQueue<PayloadBatch> queue) {
+    private void workerLoop(BlockingQueue<SubBatch> queue) {
         while (!shuttingDown.get() && !Thread.currentThread().isInterrupted()) {
             try {
-                PayloadBatch batch = queue.poll(500, TimeUnit.MILLISECONDS);
+                SubBatch batch = queue.poll(500, TimeUnit.MILLISECONDS);
                 if (batch == null) {
                     continue; // check shutdown periodically
                 }
                 try {
                     processBatch(batch);
-                    tracker.update(batch.payloadId, batch.index, BatchStatus.SUCCESS);
+                    tracker.update(batch.payloadId, batch.index, Status.SUCCESS);
                 } catch (Exception e) {
-                    tracker.update(batch.payloadId, batch.index, BatchStatus.FAILURE);
+                    tracker.update(batch.payloadId, batch.index, Status.FAILURE);
                 }
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
@@ -129,7 +129,7 @@ public class PayloadService {
         }
     }
 
-    private void processBatch(PayloadBatch batch) {
+    private void processBatch(SubBatch batch) {
         System.out.printf("Processing payload %s, key %s, batch %d with %d records%n",
                 batch.payloadId, batch.key, batch.index, batch.records.size());
 
@@ -153,7 +153,7 @@ public class PayloadService {
         int batchSize = payloadBatchSizes.getOrDefault(payloadId, 0);
         if (kafkaPayloadProducer != null) {
             // send single status; three consumer groups will each create their own cluster-tagged reply
-            kafkaPayloadProducer.sendStatus(new PayloadCompletionStatus(payloadId, success, batchSize, null));
+            kafkaPayloadProducer.sendStatus(new CompletionStatus(payloadId, success, batchSize, null));
         }
         payloadBatchSizes.remove(payloadId); // cleanup
     }

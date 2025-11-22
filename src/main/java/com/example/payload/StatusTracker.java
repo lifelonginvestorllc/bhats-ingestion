@@ -7,7 +7,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 public class StatusTracker {
-    private final ConcurrentMap<String, List<BatchStatus>> tracker = new ConcurrentHashMap<>();
+    private final ConcurrentMap<String, List<Status>> tracker = new ConcurrentHashMap<>();
     private final Sinks.Many<String> onCompleteSink;
 
     public StatusTracker(Sinks.Many<String> onCompleteSink) {
@@ -18,8 +18,8 @@ public class StatusTracker {
         tracker.put(payloadId, Collections.synchronizedList(new ArrayList<>(Collections.nCopies(batchCount, null))));
     }
 
-    public synchronized void update(String payloadId, int index, BatchStatus status) {
-        List<BatchStatus> statuses = tracker.get(payloadId);
+    public synchronized void update(String payloadId, int index, Status status) {
+        List<Status> statuses = tracker.get(payloadId);
         statuses.set(index, status);
         if (statuses.stream().noneMatch(Objects::isNull)) {
             onCompleteSink.tryEmitNext(payloadId);
@@ -27,7 +27,7 @@ public class StatusTracker {
     }
 
     public boolean isSuccessful(String payloadId) {
-        return tracker.get(payloadId).stream().allMatch(s -> s == BatchStatus.SUCCESS);
+        return tracker.get(payloadId).stream().allMatch(s -> s == Status.SUCCESS);
     }
 
     public void remove(String payloadId) {

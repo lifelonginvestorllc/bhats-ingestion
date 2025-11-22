@@ -86,7 +86,7 @@ public class KafkaConfig {
     }
 
     @Bean
-    public ProducerFactory<String, PayloadCompletionStatus> statusProducerFactory() {
+    public ProducerFactory<String, CompletionStatus> statusProducerFactory() {
         Map<String, Object> props = new HashMap<>();
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
@@ -95,12 +95,12 @@ public class KafkaConfig {
     }
 
     @Bean
-    public KafkaTemplate<String, PayloadCompletionStatus> statusKafkaTemplate() {
+    public KafkaTemplate<String, CompletionStatus> statusKafkaTemplate() {
         return new KafkaTemplate<>(statusProducerFactory());
     }
 
     @Bean
-    public ProducerFactory<String, PayloadCompletionStatus> statusProducerFactoryCluster2() {
+    public ProducerFactory<String, CompletionStatus> statusProducerFactoryCluster2() {
         if (!StringUtils.hasText(cluster2Bootstrap)) return null;
         Map<String, Object> props = new HashMap<>();
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, cluster2Bootstrap);
@@ -110,7 +110,7 @@ public class KafkaConfig {
     }
 
     @Bean
-    public ProducerFactory<String, PayloadCompletionStatus> statusProducerFactoryCluster3() {
+    public ProducerFactory<String, CompletionStatus> statusProducerFactoryCluster3() {
         if (!StringUtils.hasText(cluster3Bootstrap)) return null;
         Map<String, Object> props = new HashMap<>();
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, cluster3Bootstrap);
@@ -120,19 +120,19 @@ public class KafkaConfig {
     }
 
     @Bean
-    public KafkaTemplate<String, PayloadCompletionStatus> statusKafkaTemplateCluster2() {
+    public KafkaTemplate<String, CompletionStatus> statusKafkaTemplateCluster2() {
         if (statusProducerFactoryCluster2() == null) return null;
         return new KafkaTemplate<>(statusProducerFactoryCluster2());
     }
 
     @Bean
-    public KafkaTemplate<String, PayloadCompletionStatus> statusKafkaTemplateCluster3() {
+    public KafkaTemplate<String, CompletionStatus> statusKafkaTemplateCluster3() {
         if (statusProducerFactoryCluster3() == null) return null;
         return new KafkaTemplate<>(statusProducerFactoryCluster3());
     }
 
     @Bean
-    public ConsumerFactory<String, PayloadCompletionStatus> statusConsumerFactory() {
+    public ConsumerFactory<String, CompletionStatus> statusConsumerFactory() {
         Map<String, Object> props = new HashMap<>();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         props.put(ConsumerConfig.GROUP_ID_CONFIG, "payload-status-group");
@@ -141,14 +141,14 @@ public class KafkaConfig {
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ErrorHandlingDeserializer.class);
         props.put(ErrorHandlingDeserializer.VALUE_DESERIALIZER_CLASS, JsonDeserializer.class.getName());
         props.put(JsonDeserializer.TRUSTED_PACKAGES, "com.example.payload");
-        props.put(JsonDeserializer.VALUE_DEFAULT_TYPE, "com.example.payload.PayloadCompletionStatus");
+        props.put(JsonDeserializer.VALUE_DEFAULT_TYPE, "com.example.payload.CompletionStatus");
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
 
         return new DefaultKafkaConsumerFactory<>(props);
     }
 
     @Bean
-    public ConsumerFactory<String, PayloadCompletionStatus> statusConsumerFactoryCluster2() {
+    public ConsumerFactory<String, CompletionStatus> statusConsumerFactoryCluster2() {
         if (!StringUtils.hasText(cluster2Bootstrap)) return null;
         Map<String, Object> props = new HashMap<>();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, cluster2Bootstrap);
@@ -157,13 +157,13 @@ public class KafkaConfig {
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ErrorHandlingDeserializer.class);
         props.put(ErrorHandlingDeserializer.VALUE_DESERIALIZER_CLASS, JsonDeserializer.class.getName());
         props.put(JsonDeserializer.TRUSTED_PACKAGES, "com.example.payload");
-        props.put(JsonDeserializer.VALUE_DEFAULT_TYPE, "com.example.payload.PayloadCompletionStatus");
+        props.put(JsonDeserializer.VALUE_DEFAULT_TYPE, "com.example.payload.CompletionStatus");
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
         return new DefaultKafkaConsumerFactory<>(props);
     }
 
     @Bean
-    public ConsumerFactory<String, PayloadCompletionStatus> statusConsumerFactoryCluster3() {
+    public ConsumerFactory<String, CompletionStatus> statusConsumerFactoryCluster3() {
         if (!StringUtils.hasText(cluster3Bootstrap)) return null;
         Map<String, Object> props = new HashMap<>();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, cluster3Bootstrap);
@@ -172,30 +172,30 @@ public class KafkaConfig {
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ErrorHandlingDeserializer.class);
         props.put(ErrorHandlingDeserializer.VALUE_DESERIALIZER_CLASS, JsonDeserializer.class.getName());
         props.put(JsonDeserializer.TRUSTED_PACKAGES, "com.example.payload");
-        props.put(JsonDeserializer.VALUE_DEFAULT_TYPE, "com.example.payload.PayloadCompletionStatus");
+        props.put(JsonDeserializer.VALUE_DEFAULT_TYPE, "com.example.payload.CompletionStatus");
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
         return new DefaultKafkaConsumerFactory<>(props);
     }
 
     @Bean(name = "statusKafkaListenerContainerFactory")
-    public ConcurrentKafkaListenerContainerFactory<String, PayloadCompletionStatus> statusKafkaListenerContainerFactory() {
-        ConcurrentKafkaListenerContainerFactory<String, PayloadCompletionStatus> factory = new ConcurrentKafkaListenerContainerFactory<>();
+    public ConcurrentKafkaListenerContainerFactory<String, CompletionStatus> statusKafkaListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, CompletionStatus> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(statusConsumerFactory());
         return factory;
     }
 
     @Bean(name = "statusKafkaListenerContainerFactoryCluster2")
-    public ConcurrentKafkaListenerContainerFactory<String, PayloadCompletionStatus> statusKafkaListenerContainerFactoryCluster2() {
+    public ConcurrentKafkaListenerContainerFactory<String, CompletionStatus> statusKafkaListenerContainerFactoryCluster2() {
         if (statusConsumerFactoryCluster2() == null) return null;
-        ConcurrentKafkaListenerContainerFactory<String, PayloadCompletionStatus> factory = new ConcurrentKafkaListenerContainerFactory<>();
+        ConcurrentKafkaListenerContainerFactory<String, CompletionStatus> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(statusConsumerFactoryCluster2());
         return factory;
     }
 
     @Bean(name = "statusKafkaListenerContainerFactoryCluster3")
-    public ConcurrentKafkaListenerContainerFactory<String, PayloadCompletionStatus> statusKafkaListenerContainerFactoryCluster3() {
+    public ConcurrentKafkaListenerContainerFactory<String, CompletionStatus> statusKafkaListenerContainerFactoryCluster3() {
         if (statusConsumerFactoryCluster3() == null) return null;
-        ConcurrentKafkaListenerContainerFactory<String, PayloadCompletionStatus> factory = new ConcurrentKafkaListenerContainerFactory<>();
+        ConcurrentKafkaListenerContainerFactory<String, CompletionStatus> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(statusConsumerFactoryCluster3());
         return factory;
     }
