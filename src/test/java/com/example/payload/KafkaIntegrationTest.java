@@ -31,6 +31,9 @@ public class KafkaIntegrationTest {
     @Autowired
     private PayloadService payloadService;
 
+    @Autowired
+    private StatusStore statusStore;
+
     static KafkaContainer kafka;
 
     @BeforeAll
@@ -53,7 +56,10 @@ public class KafkaIntegrationTest {
 
     @Test
     public void testKafkaPayloadProcessing() {
+        statusStore.clear();
         int payloadCount = 3;
+        int expectedBatchSize = 10; // keys: key0..key9
+        List<String> payloadIds = new ArrayList<>();
         for (int p = 1; p <= payloadCount; p++) {
             List<Record> records = new ArrayList<>();
             for (int i = 0; i < 100; i++) {
@@ -62,12 +68,22 @@ public class KafkaIntegrationTest {
                 r.value = "value" + i;
                 records.add(r);
             }
-            producer.send("partition-key-" + p, records);
+            String payloadId = "partition-key-" + p;
+            payloadIds.add(payloadId);
+            producer.send(payloadId, records);
         }
 
         await().atMost(30, TimeUnit.SECONDS).until(() -> payloadService.getCompletedPayloads() == payloadCount);
+        await().atMost(30, TimeUnit.SECONDS).until(() -> statusStore.size() == payloadCount);
+        await().atMost(30, TimeUnit.SECONDS).until(() -> payloadIds.stream().allMatch(id -> statusStore.get(id) != null));
+
         assertEquals(payloadCount, payloadService.getCompletedPayloads(), "All payloads should be completed");
         assertEquals(payloadCount, payloadService.getSuccessfulPayloadsCount(), "All payloads should be successful");
-        assertTrue(payloadService.getSuccessfulPayloadIds().size() == payloadCount, "Successful payload IDs should equal payload count");
+        payloadIds.forEach(id -> {
+            PayloadCompletionStatus s = statusStore.get(id);
+            assertEquals(expectedBatchSize, s.batchCount, "Batch size should equal number of distinct keys");
+            assertTrue(s.success, "Payload should be successful: " + id);
+        });
+        assertEquals(payloadCount, statusStore.size(), "All payload completion statuses should be published");
     }
 }

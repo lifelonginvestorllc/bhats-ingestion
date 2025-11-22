@@ -16,7 +16,7 @@ public class KafkaPayloadConsumer {
 
     @KafkaListener(topics = "payload-topic", groupId = "payload-group")
     public void listen(ConsumerRecord<String, Record[]> record) {
-        String payloadId = "payload-" + System.currentTimeMillis() + "-" + record.key();
+        String payloadId = record.key(); // use producer-provided key as stable payloadId
         try {
             Record[] array = record.value();
             List<Record> list = Arrays.asList(array);

@@ -1,6 +1,7 @@
 package com.example.payload;
 
 import jakarta.annotation.PostConstruct;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -23,9 +24,16 @@ public class PayloadService {
     private final AtomicBoolean started = new AtomicBoolean(false);
     @Value("${payload.randomFailures:false}")
     private boolean randomFailures;
+    @Value("${payload.failKey:}")
+    private String failKey;
+    private final AtomicBoolean shuttingDown = new AtomicBoolean(false);
     private final AtomicInteger completedPayloads = new AtomicInteger(0);
     private final AtomicInteger successfulPayloads = new AtomicInteger(0);
     private final List<String> successfulPayloadIds = Collections.synchronizedList(new ArrayList<>());
+    private final ConcurrentMap<String, Integer> payloadBatchSizes = new ConcurrentHashMap<>();
+
+    @Autowired(required = false)
+    private KafkaPayloadProducer kafkaPayloadProducer; // optional injection for status publishing
 
     // Default constructor used by Spring - creates a fixed thread pool (non-daemon) for workers.
     public PayloadService() {
@@ -41,7 +49,14 @@ public class PayloadService {
 
     // Allow tests to shut down worker threads.
     public void shutdown() {
-        executorService.shutdownNow();
+        if (shuttingDown.compareAndSet(false, true)) {
+            executorService.shutdownNow();
+            try {
+                executorService.awaitTermination(5, TimeUnit.SECONDS);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
     }
 
     @PostConstruct
@@ -73,6 +88,7 @@ public class PayloadService {
 
         int index = 0;
         tracker.init(payloadId, grouped.size());
+        payloadBatchSizes.put(payloadId, grouped.size()); // track batch size per payload
 
         for (Map.Entry<String, List<Record>> entry : grouped.entrySet()) {
             String key = entry.getKey();
@@ -95,9 +111,12 @@ public class PayloadService {
     }
 
     private void workerLoop(BlockingQueue<PayloadBatch> queue) {
-        while (true) {
+        while (!shuttingDown.get() && !Thread.currentThread().isInterrupted()) {
             try {
-                PayloadBatch batch = queue.take();
+                PayloadBatch batch = queue.poll(500, TimeUnit.MILLISECONDS);
+                if (batch == null) {
+                    continue; // check shutdown periodically
+                }
                 try {
                     processBatch(batch);
                     tracker.update(batch.payloadId, batch.index, BatchStatus.SUCCESS);
@@ -114,6 +133,9 @@ public class PayloadService {
         System.out.printf("Processing payload %s, key %s, batch %d with %d records%n",
                 batch.payloadId, batch.key, batch.index, batch.records.size());
 
+        if (failKey != null && !failKey.isBlank() && batch.key.equals(failKey)) {
+            throw new RuntimeException("Forced failure for testing: key=" + failKey);
+        }
         if (randomFailures && Math.random() < 0.05) {
             throw new RuntimeException("Simulated failure");
         }
@@ -128,5 +150,10 @@ public class PayloadService {
             successfulPayloads.incrementAndGet();
             successfulPayloadIds.add(payloadId);
         }
+        int batchSize = payloadBatchSizes.getOrDefault(payloadId, 0);
+        if (kafkaPayloadProducer != null) {
+            kafkaPayloadProducer.sendStatus(new PayloadCompletionStatus(payloadId, success, batchSize));
+        }
+        payloadBatchSizes.remove(payloadId); // cleanup
     }
 }
