@@ -8,6 +8,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.annotation.DirtiesContext;
 import org.testcontainers.containers.KafkaContainer;
 import org.testcontainers.utility.DockerImageName;
 
@@ -23,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.*;
         "payload.randomFailures=false",
         "payload.failKey=key3"
 })
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 public class KafkaFailureIntegrationTest {
 
     @Autowired
@@ -74,6 +76,6 @@ public class KafkaFailureIntegrationTest {
         PayloadCompletionStatus status = statusStore.get(payloadId);
         assertNotNull(status, "Status should be published for failed payload");
         assertFalse(status.success, "Payload should be marked as FAILURE due to forced failKey");
+        assertEquals(10, status.batchCount, "Batch count should equal distinct key groups (10)");
     }
 }
-
