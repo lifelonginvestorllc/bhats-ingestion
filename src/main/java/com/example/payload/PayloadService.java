@@ -8,18 +8,40 @@ import reactor.core.publisher.Sinks;
 import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 @Service
 public class PayloadService {
     private final int NUM_QUEUES = 4;
     private final Map<Integer, BlockingQueue<PayloadBatch>> queueMap = new HashMap<>();
-    private final ExecutorService executorService = Executors.newFixedThreadPool(NUM_QUEUES);
+    private final ExecutorService executorService;
     private StatusTracker tracker;
     private final Sinks.Many<String> onCompleteSink = Sinks.many().unicast().onBackpressureBuffer();
+    private final AtomicBoolean started = new AtomicBoolean(false);
+
+    // Default constructor used by Spring - creates a fixed thread pool (non-daemon) for workers.
+    public PayloadService() {
+        this.executorService = Executors.newFixedThreadPool(NUM_QUEUES);
+        init();
+    }
+
+    // Package-private constructor for tests to inject a custom ExecutorService (e.g., daemon threads).
+    PayloadService(ExecutorService executorService) {
+        this.executorService = executorService;
+        init();
+    }
+
+    // Allow tests to shut down worker threads.
+    public void shutdown() {
+        executorService.shutdownNow();
+    }
 
     @PostConstruct
     public void init() {
+        if (!started.compareAndSet(false, true)) {
+            return; // already initialized
+        }
         tracker = new StatusTracker(onCompleteSink);
         for (int i = 0; i < NUM_QUEUES; i++) {
             BlockingQueue<PayloadBatch> queue = new LinkedBlockingQueue<>(100);
