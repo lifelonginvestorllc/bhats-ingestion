@@ -63,7 +63,7 @@ public class MultiClusterKafkaIntegrationTest {
 
     @Test
     void testAggregatedMultiClusterStatus() {
-        String payloadId = "multi-cluster-1";
+        String bhatsJobId = "multi-cluster-1";
         List<DataPayload> dataPayloads = new ArrayList<>();
         for (int i = 0; i < 100; i++) {
             DataPayload r = new DataPayload();
@@ -73,15 +73,15 @@ public class MultiClusterKafkaIntegrationTest {
             r.datapoints = List.of(dp);
             dataPayloads.add(r);
         }
-        producer.send(payloadId, dataPayloads);
+        producer.send(bhatsJobId, dataPayloads);
 
         await().atMost(30, TimeUnit.SECONDS).until(() -> payloadService.getCompletedPayloads() >= 1);
         await().atMost(30, TimeUnit.SECONDS).until(() -> {
-            AggregatedPayloadStatus agg = producer.getAggregatedStatus(payloadId);
+            AggregatedPayloadStatus agg = producer.getAggregatedStatus(bhatsJobId);
             return agg != null && agg.repliesReceived >= 3;
         });
 
-        AggregatedPayloadStatus agg = producer.getAggregatedStatus(payloadId);
+        AggregatedPayloadStatus agg = producer.getAggregatedStatus(bhatsJobId);
         assertNotNull(agg, "Aggregated status should be available");
         assertTrue(agg.allClustersReported, "All clusters should have reported");
         assertTrue(agg.allSuccessful, "All cluster statuses should be successful");

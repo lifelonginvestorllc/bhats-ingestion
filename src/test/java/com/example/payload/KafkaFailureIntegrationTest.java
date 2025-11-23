@@ -66,7 +66,7 @@ public class KafkaFailureIntegrationTest {
     @Test
     public void testForcedFailurePayload() {
         statusStore.clear();
-        String payloadId = "failure-payload";
+        String bhatsJobId = "failure-payload";
         List<DataPayload> dataPayloads = new ArrayList<>();
         // Ensure "tsid3" appears so forced failure triggers at least one batch
         for (int i = 0; i < 50; i++) {
@@ -77,12 +77,12 @@ public class KafkaFailureIntegrationTest {
             r.datapoints = List.of(dp);
             dataPayloads.add(r);
         }
-        producer.send(payloadId, dataPayloads);
+        producer.send(bhatsJobId, dataPayloads);
 
         await().atMost(30, TimeUnit.SECONDS).until(() -> payloadService.getCompletedPayloads() >= 1);
         await().atMost(30, TimeUnit.SECONDS).until(() -> statusStore.size() >= 1);
 
-        PayloadStatus status = statusStore.get(payloadId);
+        PayloadStatus status = statusStore.get(bhatsJobId);
         assertNotNull(status, "Status should be published for failed payload");
         assertFalse(status.success, "Payload should be marked as FAILURE due to forced failKey");
         assertEquals(10, status.batchCount, "Batch count should equal distinct key groups (10)");

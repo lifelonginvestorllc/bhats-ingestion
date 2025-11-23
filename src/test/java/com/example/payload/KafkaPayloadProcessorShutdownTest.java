@@ -55,7 +55,7 @@ public class KafkaPayloadProcessorShutdownTest {
 
     @Test
     void testNoProcessingAfterShutdown() throws InterruptedException {
-        String payloadId = "shutdown-test";
+        String bhatsJobId = "shutdown-test";
         List<DataPayload> dataPayloads = new ArrayList<>();
         for (int i = 0; i < 50; i++) {
             DataPayload r = new DataPayload();
@@ -65,7 +65,7 @@ public class KafkaPayloadProcessorShutdownTest {
             r.datapoints = List.of(dp);
             dataPayloads.add(r);
         }
-        Payload payload = new Payload(payloadId, dataPayloads);
+        Payload payload = new Payload(bhatsJobId, dataPayloads);
         payloadService.submitLargePayload(payload);
 
         await().atMost(15, TimeUnit.SECONDS).until(() -> payloadService.getCompletedPayloads() >= 1);

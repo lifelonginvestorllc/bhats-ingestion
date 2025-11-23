@@ -68,7 +68,7 @@ public class KafkaIntegrationTest {
         statusStore.clear();
         int payloadCount = 3;
         int expectedBatchSize = 10; // keys: key0..key9
-        List<String> payloadIds = new ArrayList<>();
+        List<String> bhatsJobIds = new ArrayList<>();
         for (int p = 1; p <= payloadCount; p++) {
             List<DataPayload> dataPayloads = new ArrayList<>();
             for (int i = 0; i < 100; i++) {
@@ -79,18 +79,18 @@ public class KafkaIntegrationTest {
                 r.datapoints = List.of(dp);
                 dataPayloads.add(r);
             }
-            String payloadId = "partition-key-" + p;
-            payloadIds.add(payloadId);
-            producer.send(payloadId, dataPayloads);
+            String bhatsJobId = "partition-key-" + p;
+            bhatsJobIds.add(bhatsJobId);
+            producer.send(bhatsJobId, dataPayloads);
         }
 
         await().atMost(30, TimeUnit.SECONDS).until(() -> payloadService.getCompletedPayloads() == payloadCount);
         await().atMost(30, TimeUnit.SECONDS).until(() -> statusStore.size() == payloadCount);
-        await().atMost(30, TimeUnit.SECONDS).until(() -> payloadIds.stream().allMatch(id -> statusStore.get(id) != null));
+        await().atMost(30, TimeUnit.SECONDS).until(() -> bhatsJobIds.stream().allMatch(id -> statusStore.get(id) != null));
 
         assertEquals(payloadCount, payloadService.getCompletedPayloads(), "All payloads should be completed");
         assertEquals(payloadCount, payloadService.getSuccessfulPayloadsCount(), "All payloads should be successful");
-        payloadIds.forEach(id -> {
+        bhatsJobIds.forEach(id -> {
             PayloadStatus s = statusStore.get(id);
             assertEquals(expectedBatchSize, s.batchCount, "Batch size should equal number of distinct keys");
             assertTrue(s.success, "Payload should be successful: " + id);
