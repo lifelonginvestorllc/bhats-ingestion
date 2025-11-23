@@ -4,14 +4,14 @@ import java.util.List;
 
 public class Payload {
     public String bhatsJobId;
-    public List<DataPayload> data;
+    public List<DataPayload> dataPayloads;
 
     public Payload() {
     }
 
-    public Payload(String bhatsJobId, List<DataPayload> data) {
+    public Payload(String bhatsJobId, List<DataPayload> dataPayloads) {
         this.bhatsJobId = bhatsJobId;
-        this.data = data;
+        this.dataPayloads = dataPayloads;
     }
 }
 

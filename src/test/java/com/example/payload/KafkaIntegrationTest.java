@@ -70,18 +70,18 @@ public class KafkaIntegrationTest {
         int expectedBatchSize = 10; // keys: key0..key9
         List<String> payloadIds = new ArrayList<>();
         for (int p = 1; p <= payloadCount; p++) {
-            List<DataPayload> records = new ArrayList<>();
+            List<DataPayload> dataPayloads = new ArrayList<>();
             for (int i = 0; i < 100; i++) {
                 DataPayload r = new DataPayload();
                 r.tsid = "tsid" + (i % 10);
                 Datapoint dp = new Datapoint();
                 dp.value = "datapoint" + i;
                 r.datapoints = List.of(dp);
-                records.add(r);
+                dataPayloads.add(r);
             }
             String payloadId = "partition-key-" + p;
             payloadIds.add(payloadId);
-            producer.send(payloadId, records);
+            producer.send(payloadId, dataPayloads);
         }
 
         await().atMost(30, TimeUnit.SECONDS).until(() -> payloadService.getCompletedPayloads() == payloadCount);

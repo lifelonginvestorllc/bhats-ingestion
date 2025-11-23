@@ -64,16 +64,16 @@ public class MultiClusterKafkaIntegrationTest {
     @Test
     void testAggregatedMultiClusterStatus() {
         String payloadId = "multi-cluster-1";
-        List<DataPayload> records = new ArrayList<>();
+        List<DataPayload> dataPayloads = new ArrayList<>();
         for (int i = 0; i < 100; i++) {
             DataPayload r = new DataPayload();
             r.tsid = "tsid" + (i % 10);
             Datapoint dp = new Datapoint();
             dp.value = "datapoint" + i;
             r.datapoints = List.of(dp);
-            records.add(r);
+            dataPayloads.add(r);
         }
-        producer.send(payloadId, records);
+        producer.send(payloadId, dataPayloads);
 
         await().atMost(30, TimeUnit.SECONDS).until(() -> payloadService.getCompletedPayloads() >= 1);
         await().atMost(30, TimeUnit.SECONDS).until(() -> {

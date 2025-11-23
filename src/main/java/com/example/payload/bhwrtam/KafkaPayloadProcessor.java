@@ -88,8 +88,8 @@ public class KafkaPayloadProcessor {
 
 	public void submitLargePayload(Payload payload) throws InterruptedException {
 		String bhatsJobId = payload.bhatsJobId;
-		List<DataPayload> records = payload.data;
-		Map<String, List<DataPayload>> grouped = records.stream().collect(Collectors.groupingBy(r -> r.tsid));
+		List<DataPayload> eventData = payload.dataPayloads;
+		Map<String, List<DataPayload>> grouped = eventData.stream().collect(Collectors.groupingBy(r -> r.tsid));
 
 		int index = 0;
 		tracker.init(bhatsJobId, grouped.size());
@@ -135,8 +135,8 @@ public class KafkaPayloadProcessor {
 	}
 
 	private void processBatch(SubBatch batch) {
-		System.out.printf("Processing payload %s, key %s, batch %d with %d records%n", batch.bhatsJobId, batch.key,
-				batch.index, batch.records.size());
+		System.out.printf("Processing payload %s, key %s, batch %d with %d dataPayloads%n", batch.bhatsJobId, batch.key,
+				batch.index, batch.dataPayloads.size());
 
 		if (failKey != null && !failKey.isBlank() && batch.key.equals(failKey)) {
 			throw new RuntimeException("Forced failure for testing: key=" + failKey);

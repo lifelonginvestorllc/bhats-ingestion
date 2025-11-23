@@ -30,8 +30,8 @@ public class BhpubwrtProducer implements StatusPublisher {
 
 	private final ConcurrentMap<String, ClusterStatusAggregator> multiClusterStatus = new ConcurrentHashMap<>();
 
-	public void send(String key, List<DataPayload> records) {
-		Payload payload = new Payload(key, records);
+	public void send(String key, List<DataPayload> dataPayloads) {
+		Payload payload = new Payload(key, dataPayloads);
 		kafkaTemplate.send(REQUEST_TOPIC, key, payload);
 		// initialize aggregator expecting 3 cluster replies (configurable later)
 		multiClusterStatus.computeIfAbsent(key, id -> new ClusterStatusAggregator(3));

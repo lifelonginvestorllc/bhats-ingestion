@@ -67,7 +67,7 @@ public class KafkaFailureIntegrationTest {
     public void testForcedFailurePayload() {
         statusStore.clear();
         String payloadId = "failure-payload";
-        List<DataPayload> records = new ArrayList<>();
+        List<DataPayload> dataPayloads = new ArrayList<>();
         // Ensure "tsid3" appears so forced failure triggers at least one batch
         for (int i = 0; i < 50; i++) {
             DataPayload r = new DataPayload();
@@ -75,9 +75,9 @@ public class KafkaFailureIntegrationTest {
             Datapoint dp = new Datapoint();
             dp.value = "datapoint" + i;
             r.datapoints = List.of(dp);
-            records.add(r);
+            dataPayloads.add(r);
         }
-        producer.send(payloadId, records);
+        producer.send(payloadId, dataPayloads);
 
         await().atMost(30, TimeUnit.SECONDS).until(() -> payloadService.getCompletedPayloads() >= 1);
         await().atMost(30, TimeUnit.SECONDS).until(() -> statusStore.size() >= 1);

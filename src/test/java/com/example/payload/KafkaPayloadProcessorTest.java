@@ -33,16 +33,16 @@ public class KafkaPayloadProcessorTest {
 
         try {
             for (int p = 1; p <= 3; p++) {
-                List<DataPayload> records = new ArrayList<>();
+                List<DataPayload> dataPayloads = new ArrayList<>();
                 for (int i = 0; i < 100; i++) {
                     DataPayload r = new DataPayload();
                     r.tsid = "tsid" + (i % 10);  // 10 different keys
                     Datapoint dp = new Datapoint();
                     dp.value = "datapoint" + i;
                     r.datapoints = List.of(dp);
-                    records.add(r);
+                    dataPayloads.add(r);
                 }
-                Payload payload = new Payload("payload-" + p, records);
+                Payload payload = new Payload("payload-" + p, dataPayloads);
                 payloadService.submitLargePayload(payload);
             }
 
