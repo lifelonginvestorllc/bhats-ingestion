@@ -36,15 +36,9 @@ public class BhpubwrtProducer implements StatusPublisher {
 		// Split payload into sub-payloads based on partition
 		List<Payload> subPayloads = payloadSplitter.split(payload);
 
-		// Send each sub-payload to Kafka with its partition-specific key
+		// Send each sub-payload to Kafka with its partitionId
 		for (Payload subPayload : subPayloads) {
-			// Use the first tsid from the sub-payload to determine the Kafka partition key
-			// This ensures all DataPayloads in this sub-payload go to the same partition
-			String partitionKey = subPayload.dataPayloads.isEmpty() ?
-				subPayload.bhatsJobId :
-				subPayload.dataPayloads.get(0).tsid;
-
-			kafkaTemplate.send(REQUEST_TOPIC, partitionKey, subPayload);
+			kafkaTemplate.send(REQUEST_TOPIC, subPayload.partitionId, null, subPayload);
 		}
 
 		// Initialize aggregator expecting 3 cluster replies for the original job
