@@ -1,7 +1,7 @@
 package com.example.payload;
 
 import com.example.payload.common.PayloadStatus;
-import com.example.payload.common.DataPayload;
+import com.example.payload.common.Payload;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.admin.NewTopic;
@@ -47,14 +47,14 @@ public class KafkaConfig {
     }
 
     @Bean
-    public ConsumerFactory<String, DataPayload[]> consumerFactory() {
+    public ConsumerFactory<String, Payload> consumerFactory() {
         Map<String, Object> props = new HashMap<>();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         props.put(ConsumerConfig.GROUP_ID_CONFIG, "payload-group");
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
 
-        JsonDeserializer<DataPayload[]> deserializer = new JsonDeserializer<>(DataPayload[].class);
+        JsonDeserializer<Payload> deserializer = new JsonDeserializer<>(Payload.class);
         deserializer.addTrustedPackages("*");
         deserializer.ignoreTypeHeaders(); // we don't rely on type headers for generic List
 
@@ -66,15 +66,15 @@ public class KafkaConfig {
     }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, DataPayload[]> kafkaListenerContainerFactory() {
-        ConcurrentKafkaListenerContainerFactory<String, DataPayload[]> factory =
+    public ConcurrentKafkaListenerContainerFactory<String, Payload> kafkaListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, Payload> factory =
             new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory());
         return factory;
     }
 
     @Bean
-    public ProducerFactory<String, DataPayload[]> producerFactory() {
+    public ProducerFactory<String, Payload> producerFactory() {
         Map<String, Object> props = new HashMap<>();
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
@@ -83,7 +83,7 @@ public class KafkaConfig {
     }
 
     @Bean
-    public KafkaTemplate<String, DataPayload[]> kafkaTemplate() {
+    public KafkaTemplate<String, Payload> kafkaTemplate() {
         return new KafkaTemplate<>(producerFactory());
     }
 
