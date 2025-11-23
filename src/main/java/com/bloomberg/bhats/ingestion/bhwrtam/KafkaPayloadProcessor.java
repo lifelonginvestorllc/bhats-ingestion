@@ -111,11 +111,11 @@ public class KafkaPayloadProcessor {
 
         // Create BatchPayload for each queue and submit to the corresponding blocking queue
         for (Map.Entry<Integer, List<DataPayload>> entry : queueGroupedPayloads.entrySet()) {
-            int queueId = entry.getKey();
+            int subBatchId = entry.getKey();
             List<DataPayload> dataPayloads = entry.getValue();
 
-            BatchPayload batch = new BatchPayload(bhatsJobId, queueId, dataPayloads);
-            queueMap.get(queueId).put(batch);
+            BatchPayload batchPayload = new BatchPayload(bhatsJobId, payload.partitionId, subBatchId, dataPayloads);
+            queueMap.get(subBatchId).put(batchPayload);
         }
     }
 
