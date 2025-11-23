@@ -67,7 +67,7 @@ public class KafkaPayloadProcessorShutdownTest {
             dataPayloads.add(r);
         }
         Payload payload = new Payload(bhatsJobId, dataPayloads);
-        payloadService.submitLargePayload(payload);
+        payloadService.submitKafkaPayload(payload);
 
         await().atMost(15, TimeUnit.SECONDS).until(() -> payloadService.getCompletedPayloads() >= 1);
         int completedBeforeShutdown = payloadService.getCompletedPayloads();

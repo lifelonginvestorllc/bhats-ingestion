@@ -1,6 +1,6 @@
 package com.bloomberg.bhats.ingestion.bhwrtam;
 
-public enum SubBatchStatus {
+public enum BatchStatus {
     SUCCESS,
     FAILURE
 }

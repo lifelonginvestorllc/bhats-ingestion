@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component
-public class StatusStore {
+public class PayloadStatusStore {
     private final Map<String, PayloadStatus> statuses = new ConcurrentHashMap<>();
 
     public void add(PayloadStatus status) {

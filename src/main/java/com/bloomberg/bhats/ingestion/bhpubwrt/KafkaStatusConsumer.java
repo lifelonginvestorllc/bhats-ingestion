@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 public class KafkaStatusConsumer {
 
     @Autowired
-    private StatusStore statusStore;
+    private PayloadStatusStore statusStore;
     @Autowired
     private BhpubwrtProducer bhpubwrtProducer;
 

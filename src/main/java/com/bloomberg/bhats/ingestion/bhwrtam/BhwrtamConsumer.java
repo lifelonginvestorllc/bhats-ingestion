@@ -15,7 +15,7 @@ public class BhwrtamConsumer {
     @KafkaListener(topics = "payload-topic", groupId = "payload-group")
     public void listen(ConsumerRecord<String, Payload> record) {
         try {
-            kafkaPayloadProcessor.submitLargePayload(record.value());
+            kafkaPayloadProcessor.submitKafkaPayload(record.value());
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }

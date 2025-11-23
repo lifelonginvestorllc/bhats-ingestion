@@ -4,7 +4,7 @@ import com.bloomberg.bhats.ingestion.bhpubwrt.BhpubwrtProducer;
 import com.bloomberg.bhats.ingestion.common.Datapoint;
 import com.bloomberg.bhats.ingestion.common.Payload;
 import com.bloomberg.bhats.ingestion.common.PayloadStatus;
-import com.bloomberg.bhats.ingestion.bhpubwrt.StatusStore;
+import com.bloomberg.bhats.ingestion.bhpubwrt.PayloadStatusStore;
 import com.bloomberg.bhats.ingestion.bhwrtam.KafkaPayloadProcessor;
 import com.bloomberg.bhats.ingestion.common.DataPayload;
 import org.junit.jupiter.api.Test;
@@ -41,7 +41,7 @@ public class KafkaFailureIntegrationTest {
     private KafkaPayloadProcessor payloadService;
 
     @Autowired
-    private StatusStore statusStore;
+    private PayloadStatusStore statusStore;
 
     static KafkaContainer kafka;
 

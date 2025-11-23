@@ -21,9 +21,9 @@ import java.util.stream.Collectors;
 @Service
 public class KafkaPayloadProcessor {
 	private final int NUM_QUEUES = 4;
-	private final Map<Integer, BlockingQueue<SubBatch>> queueMap = new HashMap<>();
+	private final Map<Integer, BlockingQueue<BatchPayload>> queueMap = new HashMap<>();
 	private final ExecutorService executorService;
-	private StatusTracker tracker;
+	private BatchStatusTracker tracker;
 	private final Sinks.Many<String> onCompleteSink = Sinks.many().unicast().onBackpressureBuffer();
 	private final AtomicBoolean started = new AtomicBoolean(false);
 	@Value("${payload.randomFailures:false}")
@@ -70,9 +70,9 @@ public class KafkaPayloadProcessor {
 		if (!started.compareAndSet(false, true)) {
 			return; // already initialized
 		}
-		tracker = new StatusTracker(onCompleteSink);
+		tracker = new BatchStatusTracker(onCompleteSink);
 		for (int i = 0; i < NUM_QUEUES; i++) {
-			BlockingQueue<SubBatch> queue = new LinkedBlockingQueue<>(100);
+			BlockingQueue<BatchPayload> queue = new LinkedBlockingQueue<>(100);
 			queueMap.put(i, queue);
 			int idx = i;
 			executorService.submit(() -> workerLoop(queueMap.get(idx)));
@@ -82,11 +82,11 @@ public class KafkaPayloadProcessor {
 		completedFlux.delayElements(Duration.ofMillis(100)).subscribe(this::handleCompletePayload);
 	}
 
-	private int route(String key) {
-		return Math.abs(key.hashCode() % NUM_QUEUES);
+	private int route(String tsid) {
+		return Math.abs(tsid.hashCode() % NUM_QUEUES);
 	}
 
-	public void submitLargePayload(Payload payload) throws InterruptedException {
+	public void submitKafkaPayload(Payload payload) throws InterruptedException {
 		String bhatsJobId = payload.bhatsJobId;
 		List<DataPayload> eventData = payload.dataPayloads;
 		Map<String, List<DataPayload>> grouped = eventData.stream().collect(Collectors.groupingBy(r -> r.tsid));
@@ -98,7 +98,7 @@ public class KafkaPayloadProcessor {
 		for (Map.Entry<String, List<DataPayload>> entry : grouped.entrySet()) {
 			String key = entry.getKey();
 			int queueId = route(key);
-			SubBatch batch = new SubBatch(bhatsJobId, index++, key, entry.getValue());
+			BatchPayload batch = new BatchPayload(bhatsJobId, index++, key, entry.getValue());
 			queueMap.get(queueId).put(batch);
 		}
 	}
@@ -115,18 +115,18 @@ public class KafkaPayloadProcessor {
 		return new ArrayList<>(successfulPayloadIds);
 	}
 
-	private void workerLoop(BlockingQueue<SubBatch> queue) {
+	private void workerLoop(BlockingQueue<BatchPayload> queue) {
 		while (!shuttingDown.get() && !Thread.currentThread().isInterrupted()) {
 			try {
-				SubBatch batch = queue.poll(500, TimeUnit.MILLISECONDS);
+				BatchPayload batch = queue.poll(500, TimeUnit.MILLISECONDS);
 				if (batch == null) {
 					continue; // check shutdown periodically
 				}
 				try {
 					processBatch(batch);
-					tracker.update(batch.bhatsJobId, batch.index, SubBatchStatus.SUCCESS);
+					tracker.update(batch.bhatsJobId, batch.index, BatchStatus.SUCCESS);
 				} catch (Exception e) {
-					tracker.update(batch.bhatsJobId, batch.index, SubBatchStatus.FAILURE);
+					tracker.update(batch.bhatsJobId, batch.index, BatchStatus.FAILURE);
 				}
 			} catch (InterruptedException e) {
 				Thread.currentThread().interrupt();
@@ -134,7 +134,7 @@ public class KafkaPayloadProcessor {
 		}
 	}
 
-	private void processBatch(SubBatch batch) {
+	private void processBatch(BatchPayload batch) {
 		System.out.printf("Processing payload %s, key %s, batch %d with %d dataPayloads%n", batch.bhatsJobId, batch.key,
 				batch.index, batch.dataPayloads.size());
 

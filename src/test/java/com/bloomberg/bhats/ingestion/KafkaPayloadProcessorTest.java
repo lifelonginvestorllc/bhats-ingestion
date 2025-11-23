@@ -44,7 +44,7 @@ public class KafkaPayloadProcessorTest {
                     dataPayloads.add(r);
                 }
                 Payload payload = new Payload("payload-" + p, dataPayloads);
-                payloadService.submitLargePayload(payload);
+                payloadService.submitKafkaPayload(payload);
             }
 
             // Wait for all processing to complete (heuristic)
