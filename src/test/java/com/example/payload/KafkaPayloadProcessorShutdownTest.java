@@ -3,6 +3,7 @@ package com.example.payload;
 import com.example.payload.bhwrtam.KafkaPayloadProcessor;
 import com.example.payload.common.DataPayload;
 import com.example.payload.common.Datapoint;
+import com.example.payload.common.Payload;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +17,6 @@ import org.testcontainers.containers.KafkaContainer;
 import org.testcontainers.utility.DockerImageName;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -65,7 +65,8 @@ public class KafkaPayloadProcessorShutdownTest {
             r.datapoints = List.of(dp);
             records.add(r);
         }
-        payloadService.submitLargePayload(payloadId, records);
+        Payload payload = new Payload(payloadId, records);
+        payloadService.submitLargePayload(payload);
 
         await().atMost(15, TimeUnit.SECONDS).until(() -> payloadService.getCompletedPayloads() >= 1);
         int completedBeforeShutdown = payloadService.getCompletedPayloads();

@@ -3,10 +3,10 @@ package com.example.payload;
 import com.example.payload.bhwrtam.KafkaPayloadProcessor;
 import com.example.payload.common.DataPayload;
 import com.example.payload.common.Datapoint;
+import com.example.payload.common.Payload;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -42,7 +42,8 @@ public class KafkaPayloadProcessorTest {
                     r.datapoints = List.of(dp);
                     records.add(r);
                 }
-                payloadService.submitLargePayload("payload-" + p, records);
+                Payload payload = new Payload("payload-" + p, records);
+                payloadService.submitLargePayload(payload);
             }
 
             // Wait for all processing to complete (heuristic)

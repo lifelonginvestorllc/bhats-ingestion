@@ -1,6 +1,7 @@
 package com.example.payload.bhwrtam;
 
 import com.example.payload.common.DataPayload;
+import com.example.payload.common.Payload;
 import com.example.payload.common.StatusPublisher;
 import com.example.payload.common.PayloadStatus;
 import jakarta.annotation.PostConstruct;
@@ -85,7 +86,9 @@ public class KafkaPayloadProcessor {
 		return Math.abs(key.hashCode() % NUM_QUEUES);
 	}
 
-	public void submitLargePayload(String bhatsJobId, List<DataPayload> records) throws InterruptedException {
+	public void submitLargePayload(Payload payload) throws InterruptedException {
+		String bhatsJobId = payload.bhatsJobId;
+		List<DataPayload> records = payload.data;
 		Map<String, List<DataPayload>> grouped = records.stream().collect(Collectors.groupingBy(r -> r.tsid));
 
 		int index = 0;
