@@ -1,0 +1,6 @@
+/Users/liqunchen/git/bhats-ingestion/bhats-bhpubwrt/src/test/java/com/example/payload/TestApplication.java
+/Users/liqunchen/git/bhats-ingestion/bhats-bhpubwrt/src/test/java/com/example/payload/KafkaPayloadProcessorShutdownTest.java
+/Users/liqunchen/git/bhats-ingestion/bhats-bhpubwrt/src/test/java/com/example/payload/MultiClusterKafkaIntegrationTest.java
+/Users/liqunchen/git/bhats-ingestion/bhats-bhpubwrt/src/test/java/com/example/payload/KafkaPayloadProcessorTest.java
+/Users/liqunchen/git/bhats-ingestion/bhats-bhpubwrt/src/test/java/com/example/payload/KafkaFailureIntegrationTest.java
+/Users/liqunchen/git/bhats-ingestion/bhats-bhpubwrt/src/test/java/com/example/payload/KafkaIntegrationTest.java

@@ -1,0 +1,7 @@
+com/example/payload/KafkaFailureIntegrationTest.class
+com/example/payload/KafkaPayloadProcessorTest.class
+com/example/payload/KafkaIntegrationTest.class
+com/example/payload/MultiClusterKafkaIntegrationTest.class
+com/example/payload/KafkaPayloadProcessorShutdownTest.class
+com/example/payload/KafkaPayloadProcessorTest$1.class
+com/example/payload/TestApplication.class
