@@ -57,7 +57,7 @@ public class KafkaPayloadProcessorShutdownTest {
         List<DataPayload> records = new ArrayList<>();
         for (int i = 0; i < 50; i++) {
             DataPayload r = new DataPayload();
-            r.key = "key" + (i % 5);
+            r.tsid = "tsid" + (i % 5);
             r.value = "value" + i;
             records.add(r);
         }

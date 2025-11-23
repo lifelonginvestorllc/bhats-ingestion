@@ -27,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 @TestPropertySource(properties = {
         "payload.randomFailures=false",
-        "payload.failKey=key3"
+        "payload.failKey=tsid3"
 })
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 public class KafkaFailureIntegrationTest {
@@ -66,10 +66,10 @@ public class KafkaFailureIntegrationTest {
         statusStore.clear();
         String payloadId = "failure-payload";
         List<DataPayload> records = new ArrayList<>();
-        // Ensure key3 appears so forced failure triggers at least one batch
+        // Ensure "tsid3" appears so forced failure triggers at least one batch
         for (int i = 0; i < 50; i++) {
             DataPayload r = new DataPayload();
-            r.key = "key" + (i % 10); // includes key3
+            r.tsid = "tsid" + (i % 10); // includes "tsid3"
             r.value = "value" + i;
             records.add(r);
         }

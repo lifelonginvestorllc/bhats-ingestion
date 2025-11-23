@@ -65,7 +65,7 @@ public class MultiClusterKafkaIntegrationTest {
         List<DataPayload> records = new ArrayList<>();
         for (int i = 0; i < 100; i++) {
             DataPayload r = new DataPayload();
-            r.key = "key" + (i % 10);
+            r.tsid = "tsid" + (i % 10);
             r.value = "value" + i;
             records.add(r);
         }

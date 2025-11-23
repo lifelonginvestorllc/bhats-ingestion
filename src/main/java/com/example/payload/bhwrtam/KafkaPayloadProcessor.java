@@ -86,7 +86,7 @@ public class KafkaPayloadProcessor {
 	}
 
 	public void submitLargePayload(String bhatsJobId, List<DataPayload> records) throws InterruptedException {
-		Map<String, List<DataPayload>> grouped = records.stream().collect(Collectors.groupingBy(r -> r.key));
+		Map<String, List<DataPayload>> grouped = records.stream().collect(Collectors.groupingBy(r -> r.tsid));
 
 		int index = 0;
 		tracker.init(bhatsJobId, grouped.size());

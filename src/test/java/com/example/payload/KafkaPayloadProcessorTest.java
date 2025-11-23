@@ -34,7 +34,7 @@ public class KafkaPayloadProcessorTest {
                 List<DataPayload> records = new ArrayList<>();
                 for (int i = 0; i < 100; i++) {
                     DataPayload r = new DataPayload();
-                    r.key = "key" + (i % 10);  // 10 different keys
+                    r.tsid = "tsid" + (i % 10);  // 10 different keys
                     r.value = "value" + i;
                     records.add(r);
                 }
