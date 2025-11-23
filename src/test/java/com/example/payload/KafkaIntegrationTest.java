@@ -5,6 +5,7 @@ import com.example.payload.common.PayloadStatus;
 import com.example.payload.bhpubwrt.StatusStore;
 import com.example.payload.bhwrtam.KafkaPayloadProcessor;
 import com.example.payload.common.DataPayload;
+import com.example.payload.common.Datapoint;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.AfterAll;
@@ -72,7 +73,9 @@ public class KafkaIntegrationTest {
             for (int i = 0; i < 100; i++) {
                 DataPayload r = new DataPayload();
                 r.tsid = "tsid" + (i % 10);
-                r.value = "value" + i;
+                Datapoint dp = new Datapoint();
+                dp.value = "value" + i;
+                r.value = dp;
                 records.add(r);
             }
             String payloadId = "partition-key-" + p;

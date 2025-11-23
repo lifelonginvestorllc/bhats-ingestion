@@ -2,6 +2,7 @@ package com.example.payload;
 
 import com.example.payload.bhwrtam.KafkaPayloadProcessor;
 import com.example.payload.common.DataPayload;
+import com.example.payload.common.Datapoint;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,7 +59,9 @@ public class KafkaPayloadProcessorShutdownTest {
         for (int i = 0; i < 50; i++) {
             DataPayload r = new DataPayload();
             r.tsid = "tsid" + (i % 5);
-            r.value = "value" + i;
+            Datapoint dp = new Datapoint();
+            dp.value = "value" + i;
+            r.value = dp;
             records.add(r);
         }
         payloadService.submitLargePayload(payloadId, records);

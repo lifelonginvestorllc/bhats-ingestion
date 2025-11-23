@@ -1,6 +1,7 @@
 package com.example.payload;
 
 import com.example.payload.bhpubwrt.BhpubwrtProducer;
+import com.example.payload.common.Datapoint;
 import com.example.payload.common.PayloadStatus;
 import com.example.payload.bhpubwrt.StatusStore;
 import com.example.payload.bhwrtam.KafkaPayloadProcessor;
@@ -70,7 +71,9 @@ public class KafkaFailureIntegrationTest {
         for (int i = 0; i < 50; i++) {
             DataPayload r = new DataPayload();
             r.tsid = "tsid" + (i % 10); // includes "tsid3"
-            r.value = "value" + i;
+            Datapoint dp = new Datapoint();
+            dp.value = "value" + i;
+            r.value = dp;
             records.add(r);
         }
         producer.send(payloadId, records);
