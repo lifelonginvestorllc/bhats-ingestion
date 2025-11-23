@@ -1,5 +1,7 @@
 package com.example.payload;
 
+import com.example.payload.bhpubwrt.BhpubwrtProducer;
+import com.example.payload.bhpubwrt.PayloadStatus;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;

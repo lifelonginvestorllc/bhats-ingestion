@@ -1,5 +1,6 @@
 package com.example.payload;
 
+import com.example.payload.bhpubwrt.PayloadStatus;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.admin.NewTopic;
@@ -141,7 +142,7 @@ public class KafkaConfig {
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ErrorHandlingDeserializer.class);
         props.put(ErrorHandlingDeserializer.VALUE_DESERIALIZER_CLASS, JsonDeserializer.class.getName());
         props.put(JsonDeserializer.TRUSTED_PACKAGES, "com.example.payload");
-        props.put(JsonDeserializer.VALUE_DEFAULT_TYPE, "com.example.payload.PayloadStatus");
+        props.put(JsonDeserializer.VALUE_DEFAULT_TYPE, "com.example.payload.bhpubwrt.PayloadStatus");
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
 
         return new DefaultKafkaConsumerFactory<>(props);
@@ -157,7 +158,7 @@ public class KafkaConfig {
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ErrorHandlingDeserializer.class);
         props.put(ErrorHandlingDeserializer.VALUE_DESERIALIZER_CLASS, JsonDeserializer.class.getName());
         props.put(JsonDeserializer.TRUSTED_PACKAGES, "com.example.payload");
-        props.put(JsonDeserializer.VALUE_DEFAULT_TYPE, "com.example.payload.PayloadStatus");
+        props.put(JsonDeserializer.VALUE_DEFAULT_TYPE, "com.example.payload.bhpubwrt.PayloadStatus");
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
         return new DefaultKafkaConsumerFactory<>(props);
     }
@@ -172,7 +173,7 @@ public class KafkaConfig {
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ErrorHandlingDeserializer.class);
         props.put(ErrorHandlingDeserializer.VALUE_DESERIALIZER_CLASS, JsonDeserializer.class.getName());
         props.put(JsonDeserializer.TRUSTED_PACKAGES, "com.example.payload");
-        props.put(JsonDeserializer.VALUE_DEFAULT_TYPE, "com.example.payload.PayloadStatus");
+        props.put(JsonDeserializer.VALUE_DEFAULT_TYPE, "com.example.payload.bhpubwrt.PayloadStatus");
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
         return new DefaultKafkaConsumerFactory<>(props);
     }

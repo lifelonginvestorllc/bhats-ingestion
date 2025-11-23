@@ -1,4 +1,4 @@
-package com.example.payload;
+package com.example.payload.bhpubwrt;
 
 class ClusterStatusAggregator {
     private final int expected;

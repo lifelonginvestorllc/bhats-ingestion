@@ -1,6 +1,6 @@
-package com.example.payload;
+package com.example.payload.bhpubwrt;
 
-class AggregatedPayloadStatus {
+public class AggregatedPayloadStatus {
     public final boolean allClustersReported;
     public final boolean allSuccessful;
     public final boolean atLeastOneSuccess;

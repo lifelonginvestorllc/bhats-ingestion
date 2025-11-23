@@ -1,4 +1,4 @@
-package com.example.payload;
+package com.example.payload.bhpubwrt;
 
 public class PayloadStatus {
     public String payloadId;

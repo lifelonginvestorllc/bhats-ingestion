@@ -1,5 +1,6 @@
 package com.example.payload;
 
+import com.example.payload.bhpubwrt.PayloadStatus;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;

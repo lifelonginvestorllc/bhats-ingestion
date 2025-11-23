@@ -1,5 +1,7 @@
 package com.example.payload;
 
+import com.example.payload.bhpubwrt.AggregatedPayloadStatus;
+import com.example.payload.bhpubwrt.BhpubwrtProducer;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.AfterAll;
