@@ -16,7 +16,6 @@ import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 
 @Service
 public class KafkaPayloadProcessor {
@@ -90,20 +89,36 @@ public class KafkaPayloadProcessor {
 	public void submitKafkaPayload(Payload payload) throws InterruptedException {
 		String bhatsJobId = payload.bhatsJobId;
 		List<DataPayload> eventData = payload.dataPayloads;
-		Map<String, List<DataPayload>> grouped = eventData.stream().collect(Collectors.groupingBy(r -> r.tsid));
 
-		int index = 0;
-		tracker.init(bhatsJobId, grouped.size());
-		payloadBatchSizes.put(bhatsJobId, grouped.size()); // track batch size per payload
+		// Group DataPayloads by queueId (similar to PayloadSplitter)
+		// Each DataPayload is assigned to a queue based on the hash of its tsid
+		Map<Integer, List<DataPayload>> queueGroupedPayloads = new HashMap<>();
+
+		for (DataPayload dataPayload : eventData) {
+			int queueId = route(dataPayload.tsid);
+			queueGroupedPayloads.computeIfAbsent(queueId, k -> new ArrayList<>()).add(dataPayload);
+		}
+
+		// Initialize tracker with the number of batches (one per queue that has data)
+		int batchCount = queueGroupedPayloads.size();
+		tracker.init(bhatsJobId, batchCount);
+		payloadBatchSizes.put(bhatsJobId, batchCount); // track batch size per payload
+
 		// Store partition ID if available (may be null for direct calls or non-partitioned payloads)
 		if (payload.partitionId != null) {
 			payloadPartitionIds.put(bhatsJobId, payload.partitionId);
 		}
 
-		for (Map.Entry<String, List<DataPayload>> entry : grouped.entrySet()) {
-			String key = entry.getKey();
-			int queueId = route(key);
-			BatchPayload batch = new BatchPayload(bhatsJobId, index++, key, entry.getValue());
+		// Create BatchPayload for each queue and submit to the corresponding blocking queue
+		int batchId = 0;
+		for (Map.Entry<Integer, List<DataPayload>> entry : queueGroupedPayloads.entrySet()) {
+			int queueId = entry.getKey();
+			List<DataPayload> dataPayloads = entry.getValue();
+
+			// Create a key for logging/debugging - use the first tsid in this batch
+			String key = dataPayloads.isEmpty() ? bhatsJobId : dataPayloads.get(0).tsid;
+
+			BatchPayload batch = new BatchPayload(bhatsJobId, batchId++, key, dataPayloads);
 			queueMap.get(queueId).put(batch);
 		}
 	}
