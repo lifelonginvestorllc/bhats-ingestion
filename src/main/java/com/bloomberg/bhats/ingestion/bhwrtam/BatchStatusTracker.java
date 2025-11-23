@@ -7,7 +7,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 public class BatchStatusTracker {
-    private final ConcurrentMap<String, List<BatchStatus>> tracker = new ConcurrentHashMap<>();
+    private final ConcurrentMap<String, Map<Integer, BatchStatus>> tracker = new ConcurrentHashMap<>();
+    private final ConcurrentMap<String, Integer> expectedBatchCounts = new ConcurrentHashMap<>();
     private final Sinks.Many<String> onCompleteSink;
 
     public BatchStatusTracker(Sinks.Many<String> onCompleteSink) {
@@ -15,22 +16,25 @@ public class BatchStatusTracker {
     }
 
     public void init(String bhatsJobId, int batchCount) {
-        tracker.put(bhatsJobId, Collections.synchronizedList(new ArrayList<>(Collections.nCopies(batchCount, null))));
+        tracker.put(bhatsJobId, new ConcurrentHashMap<>());
+        expectedBatchCounts.put(bhatsJobId, batchCount);
     }
 
-    public synchronized void update(String bhatsJobId, int index, BatchStatus status) {
-        List<BatchStatus> statuses = tracker.get(bhatsJobId);
-        statuses.set(index, status);
-        if (statuses.stream().noneMatch(Objects::isNull)) {
+    public synchronized void update(String bhatsJobId, int queueId, BatchStatus status) {
+        Map<Integer, BatchStatus> statuses = tracker.get(bhatsJobId);
+        statuses.put(queueId, status);
+        int expectedCount = expectedBatchCounts.get(bhatsJobId);
+        if (statuses.size() == expectedCount) {
             onCompleteSink.tryEmitNext(bhatsJobId);
         }
     }
 
     public boolean isSuccessful(String bhatsJobId) {
-        return tracker.get(bhatsJobId).stream().allMatch(s -> s == BatchStatus.SUCCESS);
+        return tracker.get(bhatsJobId).values().stream().allMatch(s -> s == BatchStatus.SUCCESS);
     }
 
     public void remove(String bhatsJobId) {
         tracker.remove(bhatsJobId);
+        expectedBatchCounts.remove(bhatsJobId);
     }
 }

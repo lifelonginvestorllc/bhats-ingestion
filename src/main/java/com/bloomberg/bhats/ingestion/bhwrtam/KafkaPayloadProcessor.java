@@ -104,21 +104,17 @@ public class KafkaPayloadProcessor {
 		tracker.init(bhatsJobId, batchCount);
 		payloadBatchSizes.put(bhatsJobId, batchCount); // track batch size per payload
 
-		// Store partition ID if available (may be null for direct calls or non-partitioned payloads)
+		// Store partition ID if available (maybe null for direct calls or non-partitioned payloads)
 		if (payload.partitionId != null) {
 			payloadPartitionIds.put(bhatsJobId, payload.partitionId);
 		}
 
 		// Create BatchPayload for each queue and submit to the corresponding blocking queue
-		int batchId = 0;
 		for (Map.Entry<Integer, List<DataPayload>> entry : queueGroupedPayloads.entrySet()) {
 			int queueId = entry.getKey();
 			List<DataPayload> dataPayloads = entry.getValue();
 
-			// Create a key for logging/debugging - use the first tsid in this batch
-			String key = dataPayloads.isEmpty() ? bhatsJobId : dataPayloads.get(0).tsid;
-
-			BatchPayload batch = new BatchPayload(bhatsJobId, batchId++, key, dataPayloads);
+			BatchPayload batch = new BatchPayload(bhatsJobId, queueId, dataPayloads);
 			queueMap.get(queueId).put(batch);
 		}
 	}
@@ -144,9 +140,9 @@ public class KafkaPayloadProcessor {
 				}
 				try {
 					processBatch(batch);
-					tracker.update(batch.bhatsJobId, batch.batchId, BatchStatus.SUCCESS);
+					tracker.update(batch.bhatsJobId, batch.queueId, BatchStatus.SUCCESS);
 				} catch (Exception e) {
-					tracker.update(batch.bhatsJobId, batch.batchId, BatchStatus.FAILURE);
+					tracker.update(batch.bhatsJobId, batch.queueId, BatchStatus.FAILURE);
 				}
 			} catch (InterruptedException e) {
 				Thread.currentThread().interrupt();
@@ -155,11 +151,16 @@ public class KafkaPayloadProcessor {
 	}
 
 	private void processBatch(BatchPayload batch) {
-		System.out.printf("Processing payload %s, key %s, batch %d with %d dataPayloads%n", batch.bhatsJobId, batch.key,
-				batch.batchId, batch.dataPayloads.size());
+		System.out.printf("Processing payload %s, queueId %d with %d dataPayloads%n", batch.bhatsJobId,
+				batch.queueId, batch.dataPayloads.size());
 
-		if (failKey != null && !failKey.isBlank() && batch.key.equals(failKey)) {
-			throw new RuntimeException("Forced failure for testing: key=" + failKey);
+		if (failKey != null && !failKey.isBlank()) {
+			// Check if any tsid in the batch matches the failKey
+			for (DataPayload dataPayload : batch.dataPayloads) {
+				if (dataPayload.tsid.equals(failKey)) {
+					throw new RuntimeException("Forced failure for testing: key=" + failKey);
+				}
+			}
 		}
 		if (randomFailures && Math.random() < 0.05) {
 			throw new RuntimeException("Simulated failure");
