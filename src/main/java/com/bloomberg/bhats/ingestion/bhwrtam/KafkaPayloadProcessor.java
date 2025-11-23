@@ -179,7 +179,7 @@ public class KafkaPayloadProcessor {
         int batchSize = payloadBatchSizes.getOrDefault(bhatsJobId, 0);
         Integer partitionId = payloadPartitionIds.getOrDefault(bhatsJobId, null);
         if (statusPublisher != null) {
-            // send single status; three consumer groups will each create their own
+            // send a single status; three consumer groups will each create their own
             // cluster-tagged reply
             PayloadStatus status = new PayloadStatus(bhatsJobId, success, batchSize, null);
             status.partitionId = partitionId;

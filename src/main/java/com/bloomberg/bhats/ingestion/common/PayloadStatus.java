@@ -7,19 +7,19 @@ package com.bloomberg.bhats.ingestion.common;
 public class PayloadStatus {
     public String bhatsJobId;
     public Integer partitionId;
+    public String clusterId; // identifies source cluster
     public boolean success;
     public int batchCount;
     public long completedAt;
-    public String clusterId; // identifies source cluster
 
     public PayloadStatus() {}
 
     public PayloadStatus(String bhatsJobId, boolean success, int batchCount, String clusterId) {
         this.bhatsJobId = bhatsJobId;
+        this.clusterId = clusterId;
         this.success = success;
         this.batchCount = batchCount;
         this.completedAt = System.currentTimeMillis();
-        this.clusterId = clusterId;
     }
 }
 
