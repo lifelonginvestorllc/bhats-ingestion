@@ -61,8 +61,8 @@ public class KafkaPayloadProcessorShutdownTest {
             DataPayload r = new DataPayload();
             r.tsid = "tsid" + (i % 5);
             Datapoint dp = new Datapoint();
-            dp.value = "value" + i;
-            r.datapoints = Arrays.asList(dp);
+            dp.value = "datapoint" + i;
+            r.datapoints = List.of(dp);
             records.add(r);
         }
         payloadService.submitLargePayload(payloadId, records);

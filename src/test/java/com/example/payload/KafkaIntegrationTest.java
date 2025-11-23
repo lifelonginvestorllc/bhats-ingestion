@@ -75,8 +75,8 @@ public class KafkaIntegrationTest {
                 DataPayload r = new DataPayload();
                 r.tsid = "tsid" + (i % 10);
                 Datapoint dp = new Datapoint();
-                dp.value = "value" + i;
-                r.datapoints = Arrays.asList(dp);
+                dp.value = "datapoint" + i;
+                r.datapoints = List.of(dp);
                 records.add(r);
             }
             String payloadId = "partition-key-" + p;

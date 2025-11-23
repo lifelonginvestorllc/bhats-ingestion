@@ -73,8 +73,8 @@ public class KafkaFailureIntegrationTest {
             DataPayload r = new DataPayload();
             r.tsid = "tsid" + (i % 10); // includes "tsid3"
             Datapoint dp = new Datapoint();
-            dp.value = "value" + i;
-            r.datapoints = Arrays.asList(dp);
+            dp.value = "datapoint" + i;
+            r.datapoints = List.of(dp);
             records.add(r);
         }
         producer.send(payloadId, records);
