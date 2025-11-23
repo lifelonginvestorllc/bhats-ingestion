@@ -30,7 +30,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class MultiClusterKafkaIntegrationTest {
 
     @Autowired
-    private KafkaPayloadProducer producer;
+    private BhpubwrtProducer producer;
 
     @Autowired
     private PayloadService payloadService;

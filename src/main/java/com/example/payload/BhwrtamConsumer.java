@@ -9,7 +9,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @Component
-public class KafkaPayloadConsumer {
+public class BhwrtamConsumer {
 
     @Autowired
     private PayloadService payloadService;

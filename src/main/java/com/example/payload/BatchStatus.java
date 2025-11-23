@@ -1,6 +1,6 @@
 package com.example.payload;
 
-public enum Status {
+public enum BatchStatus {
     SUCCESS,
     FAILURE
 }

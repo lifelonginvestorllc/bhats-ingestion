@@ -11,25 +11,25 @@ public class KafkaStatusConsumer {
     @Autowired
     private StatusStore statusStore;
     @Autowired
-    private KafkaPayloadProducer producer;
+    private BhpubwrtProducer producer;
 
     @KafkaListener(topics = "payload-status", groupId = "payload-status-group-primary", containerFactory = "statusKafkaListenerContainerFactory")
-    public void listenStatusPrimary(ConsumerRecord<String, CompletionStatus> record) {
+    public void listenStatusPrimary(ConsumerRecord<String, PayloadStatus> record) {
         process(record, "cluster-1");
     }
 
     @KafkaListener(topics = "payload-status", groupId = "payload-status-group-secondary", containerFactory = "statusKafkaListenerContainerFactory")
-    public void listenStatusSecondary(ConsumerRecord<String, CompletionStatus> record) {
+    public void listenStatusSecondary(ConsumerRecord<String, PayloadStatus> record) {
         process(record, "cluster-2");
     }
 
     @KafkaListener(topics = "payload-status", groupId = "payload-status-group-tertiary", containerFactory = "statusKafkaListenerContainerFactory")
-    public void listenStatusTertiary(ConsumerRecord<String, CompletionStatus> record) {
+    public void listenStatusTertiary(ConsumerRecord<String, PayloadStatus> record) {
         process(record, "cluster-3");
     }
 
-    private void process(ConsumerRecord<String, CompletionStatus> record, String clusterId) {
-        CompletionStatus status = record.value();
+    private void process(ConsumerRecord<String, PayloadStatus> record, String clusterId) {
+        PayloadStatus status = record.value();
         status.clusterId = clusterId; // annotate origin
         statusStore.add(status);
         producer.onStatus(status);

@@ -28,7 +28,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class KafkaFailureIntegrationTest {
 
     @Autowired
-    private KafkaPayloadProducer producer;
+    private BhpubwrtProducer producer;
 
     @Autowired
     private PayloadService payloadService;
@@ -73,7 +73,7 @@ public class KafkaFailureIntegrationTest {
         await().atMost(30, TimeUnit.SECONDS).until(() -> payloadService.getCompletedPayloads() >= 1);
         await().atMost(30, TimeUnit.SECONDS).until(() -> statusStore.size() >= 1);
 
-        CompletionStatus status = statusStore.get(payloadId);
+        PayloadStatus status = statusStore.get(payloadId);
         assertNotNull(status, "Status should be published for failed payload");
         assertFalse(status.success, "Payload should be marked as FAILURE due to forced failKey");
         assertEquals(10, status.batchCount, "Batch count should equal distinct key groups (10)");

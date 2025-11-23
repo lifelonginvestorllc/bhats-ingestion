@@ -9,7 +9,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 @Component
-public class KafkaPayloadProducer {
+public class BhpubwrtProducer {
 
     private static final String REQUEST_TOPIC = "payload-topic";
     private static final String REPLY_TOPIC = "payload-status";
@@ -18,7 +18,7 @@ public class KafkaPayloadProducer {
     private KafkaTemplate<String, TSValues[]> kafkaTemplate;
 
     @Autowired
-    private org.springframework.kafka.core.KafkaTemplate<String, CompletionStatus> statusKafkaTemplate;
+    private org.springframework.kafka.core.KafkaTemplate<String, PayloadStatus> statusKafkaTemplate;
 
     // status templates from other clusters not used for sending; replies will arrive via consumers
 
@@ -30,12 +30,12 @@ public class KafkaPayloadProducer {
         multiClusterStatus.computeIfAbsent(key, id -> new ClusterStatusAggregator(3));
     }
 
-    public void sendStatus(CompletionStatus status) {
+    public void sendStatus(PayloadStatus status) {
         statusKafkaTemplate.send(REPLY_TOPIC, status.payloadId, status);
     }
 
     // Called by status consumers when each cluster replies
-    void onStatus(CompletionStatus status) {
+    void onStatus(PayloadStatus status) {
         multiClusterStatus.computeIfAbsent(status.payloadId, id -> new ClusterStatusAggregator(3)).add(status);
     }
 
@@ -47,9 +47,9 @@ public class KafkaPayloadProducer {
 
 class ClusterStatusAggregator {
     private final int expected;
-    private final java.util.List<CompletionStatus> received = new java.util.concurrent.CopyOnWriteArrayList<>();
+    private final java.util.List<PayloadStatus> received = new java.util.concurrent.CopyOnWriteArrayList<>();
     ClusterStatusAggregator(int expected) { this.expected = expected; }
-    void add(CompletionStatus s) { received.add(s); }
+    void add(PayloadStatus s) { received.add(s); }
     AggregatedPayloadStatus toAggregated() {
         boolean allReceived = received.size() >= expected;
         boolean allSuccess = allReceived && received.stream().allMatch(r -> r.success);

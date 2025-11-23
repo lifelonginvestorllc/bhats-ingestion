@@ -1,15 +1,15 @@
 package com.example.payload;
 
-public class CompletionStatus {
+public class PayloadStatus {
     public String payloadId;
     public boolean success;
     public int batchCount;
     public long completedAt;
     public String clusterId; // new field identifying source cluster
 
-    public CompletionStatus() {}
+    public PayloadStatus() {}
 
-    public CompletionStatus(String payloadId, boolean success, int batchCount, String clusterId) {
+    public PayloadStatus(String payloadId, boolean success, int batchCount, String clusterId) {
         this.payloadId = payloadId;
         this.success = success;
         this.batchCount = batchCount;

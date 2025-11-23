@@ -28,7 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class KafkaIntegrationTest {
 
     @Autowired
-    private KafkaPayloadProducer producer;
+    private BhpubwrtProducer producer;
 
     @Autowired
     private PayloadService payloadService;
@@ -82,7 +82,7 @@ public class KafkaIntegrationTest {
         assertEquals(payloadCount, payloadService.getCompletedPayloads(), "All payloads should be completed");
         assertEquals(payloadCount, payloadService.getSuccessfulPayloadsCount(), "All payloads should be successful");
         payloadIds.forEach(id -> {
-            CompletionStatus s = statusStore.get(id);
+            PayloadStatus s = statusStore.get(id);
             assertEquals(expectedBatchSize, s.batchCount, "Batch size should equal number of distinct keys");
             assertTrue(s.success, "Payload should be successful: " + id);
         });

@@ -33,7 +33,7 @@ public class PayloadService {
     private final ConcurrentMap<String, Integer> payloadBatchSizes = new ConcurrentHashMap<>();
 
     @Autowired(required = false)
-    private KafkaPayloadProducer kafkaPayloadProducer; // optional injection for status publishing
+    private BhpubwrtProducer bhpubwrtProducer; // optional injection for status publishing
 
     // Default constructor used by Spring - creates a fixed thread pool (non-daemon) for workers.
     public PayloadService() {
@@ -119,9 +119,9 @@ public class PayloadService {
                 }
                 try {
                     processBatch(batch);
-                    tracker.update(batch.payloadId, batch.index, Status.SUCCESS);
+                    tracker.update(batch.payloadId, batch.index, BatchStatus.SUCCESS);
                 } catch (Exception e) {
-                    tracker.update(batch.payloadId, batch.index, Status.FAILURE);
+                    tracker.update(batch.payloadId, batch.index, BatchStatus.FAILURE);
                 }
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
@@ -151,9 +151,9 @@ public class PayloadService {
             successfulPayloadIds.add(payloadId);
         }
         int batchSize = payloadBatchSizes.getOrDefault(payloadId, 0);
-        if (kafkaPayloadProducer != null) {
+        if (bhpubwrtProducer != null) {
             // send single status; three consumer groups will each create their own cluster-tagged reply
-            kafkaPayloadProducer.sendStatus(new CompletionStatus(payloadId, success, batchSize, null));
+            bhpubwrtProducer.sendStatus(new PayloadStatus(payloadId, success, batchSize, null));
         }
         payloadBatchSizes.remove(payloadId); // cleanup
     }
