@@ -1,13 +1,15 @@
 package com.example.payload.common;
 
+import java.util.List;
+
 public class Payload {
     public String bhatsJobId;
-    public DataPayload[] data;
+    public List<DataPayload> data;
 
     public Payload() {
     }
 
-    public Payload(String bhatsJobId, DataPayload[] data) {
+    public Payload(String bhatsJobId, List<DataPayload> data) {
         this.bhatsJobId = bhatsJobId;
         this.data = data;
     }
