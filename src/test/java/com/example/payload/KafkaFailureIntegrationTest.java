@@ -2,6 +2,7 @@ package com.example.payload;
 
 import com.example.payload.bhpubwrt.BhpubwrtProducer;
 import com.example.payload.common.Datapoint;
+import com.example.payload.common.Payload;
 import com.example.payload.common.PayloadStatus;
 import com.example.payload.bhpubwrt.StatusStore;
 import com.example.payload.bhwrtam.KafkaPayloadProcessor;
@@ -77,7 +78,8 @@ public class KafkaFailureIntegrationTest {
             r.datapoints = List.of(dp);
             dataPayloads.add(r);
         }
-        producer.send(bhatsJobId, dataPayloads);
+        Payload payload = new Payload(bhatsJobId, dataPayloads);
+        producer.send(payload);
 
         await().atMost(30, TimeUnit.SECONDS).until(() -> payloadService.getCompletedPayloads() >= 1);
         await().atMost(30, TimeUnit.SECONDS).until(() -> statusStore.size() >= 1);

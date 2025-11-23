@@ -1,6 +1,5 @@
 package com.example.payload.bhpubwrt;
 
-import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -8,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
-import com.example.payload.common.DataPayload;
 import com.example.payload.common.Payload;
 import com.example.payload.common.PayloadStatus;
 import com.example.payload.common.StatusPublisher;
@@ -30,8 +28,8 @@ public class BhpubwrtProducer implements StatusPublisher {
 
 	private final ConcurrentMap<String, ClusterStatusAggregator> multiClusterStatus = new ConcurrentHashMap<>();
 
-	public void send(String key, List<DataPayload> dataPayloads) {
-		Payload payload = new Payload(key, dataPayloads);
+	public void send(Payload payload) {
+		String key = payload.bhatsJobId;
 		kafkaTemplate.send(REQUEST_TOPIC, key, payload);
 		// initialize aggregator expecting 3 cluster replies (configurable later)
 		multiClusterStatus.computeIfAbsent(key, id -> new ClusterStatusAggregator(3));

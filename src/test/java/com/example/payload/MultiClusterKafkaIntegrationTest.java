@@ -5,6 +5,7 @@ import com.example.payload.bhpubwrt.BhpubwrtProducer;
 import com.example.payload.bhwrtam.KafkaPayloadProcessor;
 import com.example.payload.common.DataPayload;
 import com.example.payload.common.Datapoint;
+import com.example.payload.common.Payload;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.AfterAll;
@@ -73,7 +74,8 @@ public class MultiClusterKafkaIntegrationTest {
             r.datapoints = List.of(dp);
             dataPayloads.add(r);
         }
-        producer.send(bhatsJobId, dataPayloads);
+        Payload payload = new Payload(bhatsJobId, dataPayloads);
+        producer.send(payload);
 
         await().atMost(30, TimeUnit.SECONDS).until(() -> payloadService.getCompletedPayloads() >= 1);
         await().atMost(30, TimeUnit.SECONDS).until(() -> {

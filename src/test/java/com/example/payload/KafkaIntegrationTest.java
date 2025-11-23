@@ -1,6 +1,7 @@
 package com.example.payload;
 
 import com.example.payload.bhpubwrt.BhpubwrtProducer;
+import com.example.payload.common.Payload;
 import com.example.payload.common.PayloadStatus;
 import com.example.payload.bhpubwrt.StatusStore;
 import com.example.payload.bhwrtam.KafkaPayloadProcessor;
@@ -81,7 +82,8 @@ public class KafkaIntegrationTest {
             }
             String bhatsJobId = "partition-key-" + p;
             bhatsJobIds.add(bhatsJobId);
-            producer.send(bhatsJobId, dataPayloads);
+            Payload payload = new Payload(bhatsJobId, dataPayloads);
+            producer.send(payload);
         }
 
         await().atMost(30, TimeUnit.SECONDS).until(() -> payloadService.getCompletedPayloads() == payloadCount);
