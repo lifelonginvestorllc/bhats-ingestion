@@ -15,5 +15,18 @@ public class Payload {
         this.bhatsJobId = bhatsJobId;
         this.dataPayloads = dataPayloads;
     }
+
+    public Payload(String bhatsJobId, Integer partitionId, List<DataPayload> dataPayloads) {
+        this.bhatsJobId = bhatsJobId;
+        this.partitionId = partitionId;
+        this.dataPayloads = dataPayloads;
+    }
+
+    public Payload(String bhatsJobId, Integer partitionId, Integer subBatchId, List<DataPayload> dataPayloads) {
+        this.bhatsJobId = bhatsJobId;
+        this.partitionId = partitionId;
+        this.subBatchId = subBatchId;
+        this.dataPayloads = dataPayloads;
+    }
 }
 
