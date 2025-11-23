@@ -13,7 +13,7 @@ public class KafkaStatusConsumer {
     @Autowired
     private StatusStore statusStore;
     @Autowired
-    private BhpubwrtProducer producer;
+    private BhpubwrtProducer bhpubwrtProducer;
 
     @KafkaListener(topics = "payload-status", groupId = "payload-status-group-primary", containerFactory = "statusKafkaListenerContainerFactory")
     public void listenStatusPrimary(ConsumerRecord<String, PayloadStatus> record) {
@@ -34,7 +34,7 @@ public class KafkaStatusConsumer {
         PayloadStatus status = record.value();
         status.clusterId = clusterId; // annotate origin
         statusStore.add(status);
-        producer.onStatus(status);
+        bhpubwrtProducer.onStatus(status);
         System.out.printf("[STATUS] cluster=%s payloadId=%s success=%s batchCount=%d completedAt=%d%n",
                 clusterId, status.payloadId, status.success, status.batchCount, status.completedAt);
     }
