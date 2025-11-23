@@ -1,5 +1,6 @@
-package com.example.payload;
+package com.example.payload.bhwrtam;
 
+import com.example.payload.common.TSValues;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;

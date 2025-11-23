@@ -1,5 +1,7 @@
 package com.example.payload;
 
+import com.example.payload.common.TSValues;
+
 import java.util.List;
 
 public class SubBatch {

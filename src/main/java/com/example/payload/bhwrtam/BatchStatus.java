@@ -1,4 +1,4 @@
-package com.example.payload;
+package com.example.payload.bhwrtam;
 
 public enum BatchStatus {
     SUCCESS,
