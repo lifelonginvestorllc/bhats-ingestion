@@ -38,6 +38,7 @@ public class KafkaPayloadProcessorTest {
                     DataPayload r = new DataPayload();
                     r.tsid = "tsid" + (i % 10);  // 10 different keys
                     Datapoint dp = new Datapoint();
+                    dp.column = "column" + (i % 3);
                     dp.value = "datapoint" + i;
                     r.datapoints = List.of(dp);
                     dataPayloads.add(r);
