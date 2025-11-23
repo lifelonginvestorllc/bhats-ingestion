@@ -1,6 +1,6 @@
-package com.example.payload.bhwrtam;
+package com.bloomberg.bhats.ingestion.bhwrtam;
 
-import com.example.payload.common.DataPayload;
+import com.bloomberg.bhats.ingestion.common.DataPayload;
 
 import java.util.List;
 

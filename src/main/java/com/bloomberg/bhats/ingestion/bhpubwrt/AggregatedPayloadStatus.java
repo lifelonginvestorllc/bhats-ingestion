@@ -1,4 +1,4 @@
-package com.example.payload.bhpubwrt;
+package com.bloomberg.bhats.ingestion.bhpubwrt;
 
 public class AggregatedPayloadStatus {
     public final boolean allClustersReported;

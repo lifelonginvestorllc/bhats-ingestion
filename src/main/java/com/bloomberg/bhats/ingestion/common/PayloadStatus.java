@@ -1,4 +1,4 @@
-package com.example.payload.common;
+package com.bloomberg.bhats.ingestion.common;
 
 /**
  * Represents the completion status of a payload from a single cluster/consumer group.

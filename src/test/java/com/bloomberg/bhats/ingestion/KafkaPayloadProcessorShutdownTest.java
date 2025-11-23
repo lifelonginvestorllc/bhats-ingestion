@@ -1,9 +1,9 @@
-package com.example.payload;
+package com.bloomberg.bhats.ingestion;
 
-import com.example.payload.bhwrtam.KafkaPayloadProcessor;
-import com.example.payload.common.DataPayload;
-import com.example.payload.common.Datapoint;
-import com.example.payload.common.Payload;
+import com.bloomberg.bhats.ingestion.bhwrtam.KafkaPayloadProcessor;
+import com.bloomberg.bhats.ingestion.common.DataPayload;
+import com.bloomberg.bhats.ingestion.common.Datapoint;
+import com.bloomberg.bhats.ingestion.common.Payload;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.beans.factory.annotation.Autowired;

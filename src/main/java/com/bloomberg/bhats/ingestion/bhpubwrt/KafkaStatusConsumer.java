@@ -1,6 +1,6 @@
-package com.example.payload.bhpubwrt;
+package com.bloomberg.bhats.ingestion.bhpubwrt;
 
-import com.example.payload.common.PayloadStatus;
+import com.bloomberg.bhats.ingestion.common.PayloadStatus;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;

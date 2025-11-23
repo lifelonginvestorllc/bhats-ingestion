@@ -1,4 +1,4 @@
-package com.example.payload.common;
+package com.bloomberg.bhats.ingestion.common;
 
 import java.util.Date;
 

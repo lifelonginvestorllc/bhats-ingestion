@@ -1,4 +1,4 @@
-package com.example.payload.bhwrtam;
+package com.bloomberg.bhats.ingestion.bhwrtam;
 
 import reactor.core.publisher.Sinks;
 

@@ -11,7 +11,7 @@
         <relativePath/>
     </parent>
 
-    <groupId>com.example</groupId>
+    <groupId>com.bloomberg.bhats</groupId>
     <artifactId>bhats-ingestion</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>

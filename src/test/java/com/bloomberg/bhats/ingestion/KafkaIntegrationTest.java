@@ -1,12 +1,12 @@
-package com.example.payload;
+package com.bloomberg.bhats.ingestion;
 
-import com.example.payload.bhpubwrt.BhpubwrtProducer;
-import com.example.payload.common.Payload;
-import com.example.payload.common.PayloadStatus;
-import com.example.payload.bhpubwrt.StatusStore;
-import com.example.payload.bhwrtam.KafkaPayloadProcessor;
-import com.example.payload.common.DataPayload;
-import com.example.payload.common.Datapoint;
+import com.bloomberg.bhats.ingestion.bhpubwrt.BhpubwrtProducer;
+import com.bloomberg.bhats.ingestion.common.Payload;
+import com.bloomberg.bhats.ingestion.common.PayloadStatus;
+import com.bloomberg.bhats.ingestion.bhpubwrt.StatusStore;
+import com.bloomberg.bhats.ingestion.bhwrtam.KafkaPayloadProcessor;
+import com.bloomberg.bhats.ingestion.common.DataPayload;
+import com.bloomberg.bhats.ingestion.common.Datapoint;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.AfterAll;
@@ -20,7 +20,6 @@ import org.testcontainers.containers.KafkaContainer;
 import org.testcontainers.utility.DockerImageName;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 

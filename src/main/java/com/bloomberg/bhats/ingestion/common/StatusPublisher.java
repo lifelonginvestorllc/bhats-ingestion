@@ -1,4 +1,4 @@
-package com.example.payload.common;
+package com.bloomberg.bhats.ingestion.common;
 
 /**
  * Interface for publishing payload completion status.

@@ -1,6 +1,6 @@
-package com.example.payload.bhpubwrt;
+package com.bloomberg.bhats.ingestion.bhpubwrt;
 
-import com.example.payload.common.PayloadStatus;
+import com.bloomberg.bhats.ingestion.common.PayloadStatus;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;

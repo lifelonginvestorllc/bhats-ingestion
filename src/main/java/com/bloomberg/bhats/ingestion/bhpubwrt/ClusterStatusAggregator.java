@@ -1,6 +1,6 @@
-package com.example.payload.bhpubwrt;
+package com.bloomberg.bhats.ingestion.bhpubwrt;
 
-import com.example.payload.common.PayloadStatus;
+import com.bloomberg.bhats.ingestion.common.PayloadStatus;
 
 class ClusterStatusAggregator {
     private final int expected;

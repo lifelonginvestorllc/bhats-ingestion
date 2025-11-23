@@ -1,9 +1,9 @@
-package com.example.payload.bhwrtam;
+package com.bloomberg.bhats.ingestion.bhwrtam;
 
-import com.example.payload.common.DataPayload;
-import com.example.payload.common.Payload;
-import com.example.payload.common.StatusPublisher;
-import com.example.payload.common.PayloadStatus;
+import com.bloomberg.bhats.ingestion.common.DataPayload;
+import com.bloomberg.bhats.ingestion.common.Payload;
+import com.bloomberg.bhats.ingestion.common.StatusPublisher;
+import com.bloomberg.bhats.ingestion.common.PayloadStatus;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;

@@ -1,4 +1,4 @@
-package com.example.payload.bhpubwrt;
+package com.bloomberg.bhats.ingestion.bhpubwrt;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -7,9 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
-import com.example.payload.common.Payload;
-import com.example.payload.common.PayloadStatus;
-import com.example.payload.common.StatusPublisher;
+import com.bloomberg.bhats.ingestion.common.Payload;
+import com.bloomberg.bhats.ingestion.common.PayloadStatus;
+import com.bloomberg.bhats.ingestion.common.StatusPublisher;
 
 @Component
 public class BhpubwrtProducer implements StatusPublisher {

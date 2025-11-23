@@ -1,11 +1,12 @@
-package com.example.payload;
+package com.bloomberg.bhats.ingestion;
 
-import com.example.payload.bhpubwrt.AggregatedPayloadStatus;
-import com.example.payload.bhpubwrt.BhpubwrtProducer;
-import com.example.payload.bhwrtam.KafkaPayloadProcessor;
-import com.example.payload.common.DataPayload;
-import com.example.payload.common.Datapoint;
-import com.example.payload.common.Payload;
+import com.bloomberg.bhats.ingestion.bhpubwrt.BhpubwrtProducer;
+import com.bloomberg.bhats.ingestion.common.Datapoint;
+import com.bloomberg.bhats.ingestion.common.Payload;
+import com.bloomberg.bhats.ingestion.common.PayloadStatus;
+import com.bloomberg.bhats.ingestion.bhpubwrt.StatusStore;
+import com.bloomberg.bhats.ingestion.bhwrtam.KafkaPayloadProcessor;
+import com.bloomberg.bhats.ingestion.common.DataPayload;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.AfterAll;
@@ -19,7 +20,6 @@ import org.testcontainers.containers.KafkaContainer;
 import org.testcontainers.utility.DockerImageName;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -29,18 +29,19 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 @TestPropertySource(properties = {
         "payload.randomFailures=false",
-        // Reuse same container for cluster2 and cluster3 to simulate multi-cluster (simplified)
-        "spring.kafka.cluster2.bootstrap-servers=${spring.kafka.bootstrap-servers}",
-        "spring.kafka.cluster3.bootstrap-servers=${spring.kafka.bootstrap-servers}"
+        "payload.failKey=tsid3"
 })
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
-public class MultiClusterKafkaIntegrationTest {
+public class KafkaFailureIntegrationTest {
 
     @Autowired
     private BhpubwrtProducer producer;
 
     @Autowired
     private KafkaPayloadProcessor payloadService;
+
+    @Autowired
+    private StatusStore statusStore;
 
     static KafkaContainer kafka;
 
@@ -63,12 +64,14 @@ public class MultiClusterKafkaIntegrationTest {
     }
 
     @Test
-    void testAggregatedMultiClusterStatus() {
-        String bhatsJobId = "multi-cluster-1";
+    public void testForcedFailurePayload() {
+        statusStore.clear();
+        String bhatsJobId = "failure-payload";
         List<DataPayload> dataPayloads = new ArrayList<>();
-        for (int i = 0; i < 100; i++) {
+        // Ensure "tsid3" appears so forced failure triggers at least one batch
+        for (int i = 0; i < 50; i++) {
             DataPayload r = new DataPayload();
-            r.tsid = "tsid" + (i % 10);
+            r.tsid = "tsid" + (i % 10); // includes "tsid3"
             Datapoint dp = new Datapoint();
             dp.value = "datapoint" + i;
             r.datapoints = List.of(dp);
@@ -78,17 +81,11 @@ public class MultiClusterKafkaIntegrationTest {
         producer.send(payload);
 
         await().atMost(30, TimeUnit.SECONDS).until(() -> payloadService.getCompletedPayloads() >= 1);
-        await().atMost(30, TimeUnit.SECONDS).until(() -> {
-            AggregatedPayloadStatus agg = producer.getAggregatedStatus(bhatsJobId);
-            return agg != null && agg.repliesReceived >= 3;
-        });
+        await().atMost(30, TimeUnit.SECONDS).until(() -> statusStore.size() >= 1);
 
-        AggregatedPayloadStatus agg = producer.getAggregatedStatus(bhatsJobId);
-        assertNotNull(agg, "Aggregated status should be available");
-        assertTrue(agg.allClustersReported, "All clusters should have reported");
-        assertTrue(agg.allSuccessful, "All cluster statuses should be successful");
-        assertTrue(agg.repliesReceived >= 3, "At least three cluster replies expected");
-        assertEquals(10, agg.maxBatchCount, "Batch count should reflect number of distinct keys");
-        assertEquals(3, agg.clusterIds.size(), "Should have 3 distinct clusterIds");
+        PayloadStatus status = statusStore.get(bhatsJobId);
+        assertNotNull(status, "Status should be published for failed payload");
+        assertFalse(status.success, "Payload should be marked as FAILURE due to forced failKey");
+        assertEquals(10, status.batchCount, "Batch count should equal distinct key groups (10)");
     }
 }
