@@ -77,18 +77,21 @@ public class MultiClusterKafkaIntegrationTest {
         Payload payload = new Payload(bhatsJobId, dataPayloads);
         producer.send(payload);
 
-        await().atMost(30, TimeUnit.SECONDS).until(() -> payloadService.getCompletedPayloads() >= 1);
+        // Wait for all sub-payloads from all clusters to complete
+        // With 3 partitions and 3 clusters, we expect 9 replies (3×3)
         await().atMost(30, TimeUnit.SECONDS).until(() -> {
             AggregatedPayloadStatus agg = producer.getAggregatedStatus(bhatsJobId);
-            return agg != null && agg.repliesReceived >= 3;
+            return agg != null && agg.repliesReceived >= 9;
         });
 
         AggregatedPayloadStatus agg = producer.getAggregatedStatus(bhatsJobId);
         assertNotNull(agg, "Aggregated status should be available");
         assertTrue(agg.allClustersReported, "All clusters should have reported");
         assertTrue(agg.allSuccessful, "All cluster statuses should be successful");
-        assertTrue(agg.repliesReceived >= 3, "At least three cluster replies expected");
-        assertEquals(10, agg.maxBatchCount, "Batch count should reflect number of distinct keys");
+        assertTrue(agg.repliesReceived >= 9, "Should receive 9 replies (3 clusters × 3 partitions)");
+        // maxBatchCount now contains the sum of all batch counts across all clusters and partitions
+        // With 10 distinct tsids and 3 clusters, total is 30 (10 × 3)
+        assertEquals(30, agg.maxBatchCount, "Total batch count should be 30 (10 tsids × 3 clusters)");
         assertEquals(3, agg.clusterIds.size(), "Should have 3 distinct clusterIds");
     }
 }

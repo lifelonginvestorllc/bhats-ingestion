@@ -81,8 +81,13 @@ public class KafkaFailureIntegrationTest {
         Payload payload = new Payload(bhatsJobId, dataPayloads);
         producer.send(payload);
 
-        await().atMost(30, TimeUnit.SECONDS).until(() -> payloadService.getCompletedPayloads() >= 1);
-        await().atMost(30, TimeUnit.SECONDS).until(() -> statusStore.size() >= 1);
+        // Wait for all sub-payloads to complete across all partitions
+        // The batchCount should eventually sum up to 10 (all distinct tsids)
+        await().atMost(30, TimeUnit.SECONDS).until(() -> {
+            PayloadStatus status = statusStore.get(bhatsJobId);
+            // Wait until we have status and batch count is complete (10 distinct tsids)
+            return status != null && status.batchCount == 10;
+        });
 
         PayloadStatus status = statusStore.get(bhatsJobId);
         assertNotNull(status, "Status should be published for failed payload");

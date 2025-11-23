@@ -1,5 +1,6 @@
 package com.bloomberg.bhats.ingestion.bhpubwrt;
 
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -23,16 +24,33 @@ public class BhpubwrtProducer implements StatusPublisher {
 	@Autowired
 	private org.springframework.kafka.core.KafkaTemplate<String, PayloadStatus> statusKafkaTemplate;
 
+	@Autowired
+	private PayloadSplitter payloadSplitter;
+
 	// status templates from other clusters not used for sending; replies will
 	// arrive via consumers
 
 	private final ConcurrentMap<String, ClusterStatusAggregator> multiClusterStatus = new ConcurrentHashMap<>();
 
 	public void send(Payload payload) {
-		String key = payload.bhatsJobId;
-		kafkaTemplate.send(REQUEST_TOPIC, key, payload);
-		// initialize aggregator expecting 3 cluster replies (configurable later)
-		multiClusterStatus.computeIfAbsent(key, id -> new ClusterStatusAggregator(3));
+		// Split payload into sub-payloads based on partition
+		List<Payload> subPayloads = payloadSplitter.split(payload);
+
+		// Send each sub-payload to Kafka with its partition-specific key
+		for (Payload subPayload : subPayloads) {
+			// Use the first tsid from the sub-payload to determine the Kafka partition key
+			// This ensures all DataPayloads in this sub-payload go to the same partition
+			String partitionKey = subPayload.dataPayloads.isEmpty() ?
+				subPayload.bhatsJobId :
+				subPayload.dataPayloads.get(0).tsid;
+
+			kafkaTemplate.send(REQUEST_TOPIC, partitionKey, subPayload);
+		}
+
+		// Initialize aggregator expecting 3 cluster replies for the original job
+		// We need to track sub-payloads count for proper status aggregation
+		multiClusterStatus.computeIfAbsent(payload.bhatsJobId,
+			id -> new ClusterStatusAggregator(3, subPayloads.size()));
 	}
 
 	@Override
@@ -47,11 +65,32 @@ public class BhpubwrtProducer implements StatusPublisher {
 
 	// Called by status consumers when each cluster replies
 	public void onStatus(PayloadStatus status) {
-		multiClusterStatus.computeIfAbsent(status.bhatsJobId, id -> new ClusterStatusAggregator(3)).add(status);
+		// Extract original job ID from sub-payload ID (format: jobId-pN)
+		String originalJobId = extractOriginalJobId(status.bhatsJobId);
+		multiClusterStatus.computeIfAbsent(originalJobId,
+			id -> new ClusterStatusAggregator(3, 1)).add(status);
 	}
 
 	public AggregatedPayloadStatus getAggregatedStatus(String bhatsJobId) {
 		ClusterStatusAggregator agg = multiClusterStatus.get(bhatsJobId);
 		return agg == null ? null : agg.toAggregated();
+	}
+
+	/**
+	 * Extracts the original job ID from a sub-payload ID.
+	 * Sub-payload IDs have format: originalJobId-pN where N is partition number.
+	 *
+	 * @param subPayloadId The sub-payload job ID
+	 * @return The original job ID
+	 */
+	private String extractOriginalJobId(String subPayloadId) {
+		if (subPayloadId == null) {
+			return subPayloadId;
+		}
+		int partitionSuffixIndex = subPayloadId.lastIndexOf("-p");
+		if (partitionSuffixIndex > 0) {
+			return subPayloadId.substring(0, partitionSuffixIndex);
+		}
+		return subPayloadId;
 	}
 }

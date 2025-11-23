@@ -31,6 +31,9 @@ public class KafkaConfig {
     @Value("${spring.kafka.bootstrap-servers:localhost:9092}")
     private String bootstrapServers;
 
+    @Value("${kafka.topic.payload.partitions:3}")
+    private int payloadTopicPartitions;
+
     @Value("${spring.kafka.cluster2.bootstrap-servers:}")
     private String cluster2Bootstrap;
     @Value("${spring.kafka.cluster3.bootstrap-servers:}")
@@ -38,7 +41,7 @@ public class KafkaConfig {
 
     @Bean
     public NewTopic payloadRequestTopic() {
-        return new NewTopic(REQUEST_TOPIC, 1, (short) 1);
+        return new NewTopic(REQUEST_TOPIC, payloadTopicPartitions, (short) 1);
     }
 
     @Bean

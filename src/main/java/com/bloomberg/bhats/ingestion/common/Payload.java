@@ -4,6 +4,8 @@ import java.util.List;
 
 public class Payload {
     public String bhatsJobId;
+    public Integer partitionId;
+    public Integer batchId;
     public List<DataPayload> dataPayloads;
 
     public Payload() {

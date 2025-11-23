@@ -6,6 +6,7 @@ package com.bloomberg.bhats.ingestion.common;
  */
 public class PayloadStatus {
     public String bhatsJobId;
+    public Integer partitionId;
     public boolean success;
     public int batchCount;
     public long completedAt;

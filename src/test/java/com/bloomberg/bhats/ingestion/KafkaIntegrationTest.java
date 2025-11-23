@@ -25,6 +25,7 @@ import java.util.concurrent.TimeUnit;
 
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
@@ -86,14 +87,21 @@ public class KafkaIntegrationTest {
             producer.send(payload);
         }
 
-        await().atMost(30, TimeUnit.SECONDS).until(() -> payloadService.getCompletedPayloads() == payloadCount);
-        await().atMost(30, TimeUnit.SECONDS).until(() -> statusStore.size() == payloadCount);
-        await().atMost(30, TimeUnit.SECONDS).until(() -> bhatsJobIds.stream().allMatch(id -> statusStore.get(id) != null));
+        // Wait for all payloads to have aggregated status with complete batch counts
+        await().atMost(30, TimeUnit.SECONDS).until(() ->
+            bhatsJobIds.stream().allMatch(id -> {
+                PayloadStatus status = statusStore.get(id);
+                return status != null && status.batchCount == expectedBatchSize;
+            })
+        );
 
-        assertEquals(payloadCount, payloadService.getCompletedPayloads(), "All payloads should be completed");
-        assertEquals(payloadCount, payloadService.getSuccessfulPayloadsCount(), "All payloads should be successful");
+        // Note: getCompletedPayloads() now counts sub-payloads, so it will be > payloadCount
+        assertTrue(payloadService.getCompletedPayloads() >= payloadCount, "All payloads should be completed");
+        assertTrue(payloadService.getSuccessfulPayloadsCount() >= payloadCount, "All payloads should be successful");
+
         bhatsJobIds.forEach(id -> {
             PayloadStatus s = statusStore.get(id);
+            assertNotNull(s, "Status should exist for: " + id);
             assertEquals(expectedBatchSize, s.batchCount, "Batch size should equal number of distinct keys");
             assertTrue(s.success, "Payload should be successful: " + id);
         });
