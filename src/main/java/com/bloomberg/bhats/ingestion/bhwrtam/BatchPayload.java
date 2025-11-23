@@ -6,13 +6,13 @@ import java.util.List;
 
 public class BatchPayload {
     public String bhatsJobId;
-    public int index;
+    public Integer batchId;
     public String key;
     public List<DataPayload> dataPayloads;
 
-    public BatchPayload(String bhatsJobId, int index, String key, List<DataPayload> dataPayloads) {
+    public BatchPayload(String bhatsJobId, Integer batchId, String key, List<DataPayload> dataPayloads) {
         this.bhatsJobId = bhatsJobId;
-        this.index = index;
+        this.batchId = batchId;
         this.key = key;
         this.dataPayloads = dataPayloads;
     }

@@ -129,9 +129,9 @@ public class KafkaPayloadProcessor {
 				}
 				try {
 					processBatch(batch);
-					tracker.update(batch.bhatsJobId, batch.index, BatchStatus.SUCCESS);
+					tracker.update(batch.bhatsJobId, batch.batchId, BatchStatus.SUCCESS);
 				} catch (Exception e) {
-					tracker.update(batch.bhatsJobId, batch.index, BatchStatus.FAILURE);
+					tracker.update(batch.bhatsJobId, batch.batchId, BatchStatus.FAILURE);
 				}
 			} catch (InterruptedException e) {
 				Thread.currentThread().interrupt();
@@ -141,7 +141,7 @@ public class KafkaPayloadProcessor {
 
 	private void processBatch(BatchPayload batch) {
 		System.out.printf("Processing payload %s, key %s, batch %d with %d dataPayloads%n", batch.bhatsJobId, batch.key,
-				batch.index, batch.dataPayloads.size());
+				batch.batchId, batch.dataPayloads.size());
 
 		if (failKey != null && !failKey.isBlank() && batch.key.equals(failKey)) {
 			throw new RuntimeException("Forced failure for testing: key=" + failKey);
