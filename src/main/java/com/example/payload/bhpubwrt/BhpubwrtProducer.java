@@ -9,9 +9,11 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
 import com.example.payload.common.TSValues;
+import com.example.payload.common.PayloadStatus;
+import com.example.payload.common.StatusPublisher;
 
 @Component
-public class BhpubwrtProducer {
+public class BhpubwrtProducer implements StatusPublisher {
 
 	private static final String REQUEST_TOPIC = "payload-topic";
 	private static final String REPLY_TOPIC = "payload-status";
@@ -33,8 +35,14 @@ public class BhpubwrtProducer {
 		multiClusterStatus.computeIfAbsent(key, id -> new ClusterStatusAggregator(3));
 	}
 
-	public void sendStatus(PayloadStatus status) {
+	@Override
+	public void publishStatus(PayloadStatus status) {
 		statusKafkaTemplate.send(REPLY_TOPIC, status.payloadId, status);
+	}
+
+	// Deprecated: use publishStatus instead
+	public void sendStatus(PayloadStatus status) {
+		publishStatus(status);
 	}
 
 	// Called by status consumers when each cluster replies

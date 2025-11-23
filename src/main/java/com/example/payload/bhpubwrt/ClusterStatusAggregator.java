@@ -1,5 +1,7 @@
 package com.example.payload.bhpubwrt;
 
+import com.example.payload.common.PayloadStatus;
+
 class ClusterStatusAggregator {
     private final int expected;
     private final java.util.List<PayloadStatus> received = new java.util.concurrent.CopyOnWriteArrayList<>();

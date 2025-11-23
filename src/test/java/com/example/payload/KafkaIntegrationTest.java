@@ -1,7 +1,7 @@
 package com.example.payload;
 
 import com.example.payload.bhpubwrt.BhpubwrtProducer;
-import com.example.payload.bhpubwrt.PayloadStatus;
+import com.example.payload.common.PayloadStatus;
 import com.example.payload.bhpubwrt.StatusStore;
 import com.example.payload.bhwrtam.KafkaPayloadProcessor;
 import com.example.payload.common.TSValues;

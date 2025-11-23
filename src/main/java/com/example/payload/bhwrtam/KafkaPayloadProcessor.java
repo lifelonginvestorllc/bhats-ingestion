@@ -1,8 +1,8 @@
 package com.example.payload.bhwrtam;
 
 import com.example.payload.common.TSValues;
-import com.example.payload.bhpubwrt.BhpubwrtProducer;
-import com.example.payload.bhpubwrt.PayloadStatus;
+import com.example.payload.common.StatusPublisher;
+import com.example.payload.common.PayloadStatus;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -36,7 +36,7 @@ public class KafkaPayloadProcessor {
 	private final ConcurrentMap<String, Integer> payloadBatchSizes = new ConcurrentHashMap<>();
 
 	@Autowired(required = false)
-	private BhpubwrtProducer bhpubwrtProducer; // optional injection for status publishing
+	private StatusPublisher statusPublisher; // optional injection for status publishing
 
 	// Default constructor used by Spring - creates a fixed thread pool (non-daemon)
 	// for workers.
@@ -153,10 +153,10 @@ public class KafkaPayloadProcessor {
 			successfulPayloadIds.add(payloadId);
 		}
 		int batchSize = payloadBatchSizes.getOrDefault(payloadId, 0);
-		if (bhpubwrtProducer != null) {
+		if (statusPublisher != null) {
 			// send single status; three consumer groups will each create their own
 			// cluster-tagged reply
-			bhpubwrtProducer.sendStatus(new PayloadStatus(payloadId, success, batchSize, null));
+			statusPublisher.publishStatus(new PayloadStatus(payloadId, success, batchSize, null));
 		}
 		payloadBatchSizes.remove(payloadId); // cleanup
 	}
