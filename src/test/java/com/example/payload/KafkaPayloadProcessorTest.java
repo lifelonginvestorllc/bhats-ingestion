@@ -9,7 +9,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
-public class PayloadServiceTest {
+public class KafkaPayloadProcessorTest {
 
     @Test
     public void testMultiplePayloadsProcessing() throws InterruptedException {
@@ -25,7 +25,7 @@ public class PayloadServiceTest {
             }
         });
 
-        PayloadService payloadService = new PayloadService(exec);
+        KafkaPayloadProcessor payloadService = new KafkaPayloadProcessor(exec);
 
         try {
             for (int p = 1; p <= 3; p++) {

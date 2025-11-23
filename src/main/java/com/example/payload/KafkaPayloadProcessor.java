@@ -15,7 +15,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 @Service
-public class PayloadService {
+public class KafkaPayloadProcessor {
     private final int NUM_QUEUES = 4;
     private final Map<Integer, BlockingQueue<SubBatch>> queueMap = new HashMap<>();
     private final ExecutorService executorService;
@@ -36,13 +36,13 @@ public class PayloadService {
     private BhpubwrtProducer bhpubwrtProducer; // optional injection for status publishing
 
     // Default constructor used by Spring - creates a fixed thread pool (non-daemon) for workers.
-    public PayloadService() {
+    public KafkaPayloadProcessor() {
         this.executorService = Executors.newFixedThreadPool(NUM_QUEUES);
         init();
     }
 
     // Package-private constructor for tests to inject a custom ExecutorService (e.g., daemon threads).
-    PayloadService(ExecutorService executorService) {
+    KafkaPayloadProcessor(ExecutorService executorService) {
         this.executorService = executorService;
         init();
     }

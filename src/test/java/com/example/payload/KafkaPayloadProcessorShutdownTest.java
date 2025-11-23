@@ -24,10 +24,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
         "payload.randomFailures=false"
 })
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
-public class PayloadServiceShutdownTest {
+public class KafkaPayloadProcessorShutdownTest {
 
     @Autowired
-    private PayloadService payloadService;
+    private KafkaPayloadProcessor payloadService;
 
     static KafkaContainer kafka;
 

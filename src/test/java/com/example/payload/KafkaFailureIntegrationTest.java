@@ -31,7 +31,7 @@ public class KafkaFailureIntegrationTest {
     private BhpubwrtProducer producer;
 
     @Autowired
-    private PayloadService payloadService;
+    private KafkaPayloadProcessor payloadService;
 
     @Autowired
     private StatusStore statusStore;

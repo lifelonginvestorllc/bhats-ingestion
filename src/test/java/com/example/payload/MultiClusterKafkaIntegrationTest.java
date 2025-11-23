@@ -33,7 +33,7 @@ public class MultiClusterKafkaIntegrationTest {
     private BhpubwrtProducer producer;
 
     @Autowired
-    private PayloadService payloadService;
+    private KafkaPayloadProcessor payloadService;
 
     static KafkaContainer kafka;
 

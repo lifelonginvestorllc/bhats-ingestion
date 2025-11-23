@@ -12,7 +12,7 @@ import java.util.List;
 public class BhwrtamConsumer {
 
     @Autowired
-    private PayloadService payloadService;
+    private KafkaPayloadProcessor kafkaPayloadProcessor;
 
     @KafkaListener(topics = "payload-topic", groupId = "payload-group")
     public void listen(ConsumerRecord<String, TSValues[]> record) {
@@ -20,7 +20,7 @@ public class BhwrtamConsumer {
         try {
             TSValues[] array = record.value();
             List<TSValues> list = Arrays.asList(array);
-            payloadService.submitLargePayload(payloadId, list);
+            kafkaPayloadProcessor.submitLargePayload(payloadId, list);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
