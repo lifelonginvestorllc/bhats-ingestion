@@ -140,9 +140,9 @@ public class KafkaPayloadProcessor {
                 }
                 try {
                     processBatch(batchPayload);
-                    tracker.update(batchPayload.bhatsJobId, batchPayload.batchId, BatchStatus.SUCCESS);
+                    tracker.update(batchPayload.bhatsJobId, batchPayload.subBatchId, BatchStatus.SUCCESS);
                 } catch (Exception e) {
-                    tracker.update(batchPayload.bhatsJobId, batchPayload.batchId, BatchStatus.FAILURE);
+                    tracker.update(batchPayload.bhatsJobId, batchPayload.subBatchId, BatchStatus.FAILURE);
                 }
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
@@ -151,8 +151,8 @@ public class KafkaPayloadProcessor {
     }
 
     private void processBatch(BatchPayload batch) {
-        System.out.printf("Processing payload %s, batchId %d with %d dataPayloads%n", batch.bhatsJobId,
-                batch.batchId, batch.dataPayloads.size());
+        System.out.printf("Processing payload %s, subBatchId %d with %d dataPayloads%n", batch.bhatsJobId,
+                batch.subBatchId, batch.dataPayloads.size());
 
         if (failKey != null && !failKey.isBlank()) {
             // Check if any tsid in the batch matches the failKey

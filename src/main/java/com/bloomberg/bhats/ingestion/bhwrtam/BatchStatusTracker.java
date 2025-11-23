@@ -20,9 +20,9 @@ public class BatchStatusTracker {
         expectedBatchCounts.put(bhatsJobId, batchCount);
     }
 
-    public synchronized void update(String bhatsJobId, int batchId, BatchStatus status) {
+    public synchronized void update(String bhatsJobId, int subBatchId, BatchStatus status) {
         Map<Integer, BatchStatus> statuses = tracker.get(bhatsJobId);
-        statuses.put(batchId, status);
+        statuses.put(subBatchId, status);
         int expectedCount = expectedBatchCounts.get(bhatsJobId);
         if (statuses.size() == expectedCount) {
             onCompleteSink.tryEmitNext(bhatsJobId);
