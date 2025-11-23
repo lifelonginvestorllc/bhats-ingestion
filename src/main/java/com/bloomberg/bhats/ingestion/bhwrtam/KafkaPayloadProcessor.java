@@ -151,7 +151,7 @@ public class KafkaPayloadProcessor {
     }
 
     private void processBatch(Payload batch) {
-        System.out.printf("Processing payload %s, subBatchId %d with %d dataPayloads%n", batch.bhatsJobId,
+        System.out.printf("Processing payload bhatsJobId=%s, partitionId=%d, subBatchId=%d with %d dataPayloads%n", batch.bhatsJobId, batch.partitionId,
                 batch.subBatchId, batch.dataPayloads.size());
 
         if (failKey != null && !failKey.isBlank()) {
