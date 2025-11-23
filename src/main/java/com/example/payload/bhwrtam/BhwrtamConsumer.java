@@ -1,6 +1,6 @@
 package com.example.payload.bhwrtam;
 
-import com.example.payload.common.TSValues;
+import com.example.payload.common.DataPayload;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -16,11 +16,11 @@ public class BhwrtamConsumer {
     private KafkaPayloadProcessor kafkaPayloadProcessor;
 
     @KafkaListener(topics = "payload-topic", groupId = "payload-group")
-    public void listen(ConsumerRecord<String, TSValues[]> record) {
+    public void listen(ConsumerRecord<String, DataPayload[]> record) {
         String payloadId = record.key(); // use producer-provided key as stable payloadId
         try {
-            TSValues[] array = record.value();
-            List<TSValues> list = Arrays.asList(array);
+            DataPayload[] array = record.value();
+            List<DataPayload> list = Arrays.asList(array);
             kafkaPayloadProcessor.submitLargePayload(payloadId, list);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();

@@ -1,6 +1,6 @@
 package com.example.payload.bhwrtam;
 
-import com.example.payload.common.TSValues;
+import com.example.payload.common.DataPayload;
 import com.example.payload.common.StatusPublisher;
 import com.example.payload.common.PayloadStatus;
 import jakarta.annotation.PostConstruct;
@@ -85,14 +85,14 @@ public class KafkaPayloadProcessor {
 		return Math.abs(key.hashCode() % NUM_QUEUES);
 	}
 
-	public void submitLargePayload(String payloadId, List<TSValues> records) throws InterruptedException {
-		Map<String, List<TSValues>> grouped = records.stream().collect(Collectors.groupingBy(r -> r.key));
+	public void submitLargePayload(String payloadId, List<DataPayload> records) throws InterruptedException {
+		Map<String, List<DataPayload>> grouped = records.stream().collect(Collectors.groupingBy(r -> r.key));
 
 		int index = 0;
 		tracker.init(payloadId, grouped.size());
 		payloadBatchSizes.put(payloadId, grouped.size()); // track batch size per payload
 
-		for (Map.Entry<String, List<TSValues>> entry : grouped.entrySet()) {
+		for (Map.Entry<String, List<DataPayload>> entry : grouped.entrySet()) {
 			String key = entry.getKey();
 			int queueId = route(key);
 			SubBatch batch = new SubBatch(payloadId, index++, key, entry.getValue());

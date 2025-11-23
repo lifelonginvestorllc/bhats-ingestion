@@ -3,7 +3,7 @@ package com.example.payload;
 import com.example.payload.bhpubwrt.AggregatedPayloadStatus;
 import com.example.payload.bhpubwrt.BhpubwrtProducer;
 import com.example.payload.bhwrtam.KafkaPayloadProcessor;
-import com.example.payload.common.TSValues;
+import com.example.payload.common.DataPayload;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.AfterAll;
@@ -62,9 +62,9 @@ public class MultiClusterKafkaIntegrationTest {
     @Test
     void testAggregatedMultiClusterStatus() {
         String payloadId = "multi-cluster-1";
-        List<TSValues> records = new ArrayList<>();
+        List<DataPayload> records = new ArrayList<>();
         for (int i = 0; i < 100; i++) {
-            TSValues r = new TSValues();
+            DataPayload r = new DataPayload();
             r.key = "key" + (i % 10);
             r.value = "value" + i;
             records.add(r);

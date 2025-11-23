@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
-import com.example.payload.common.TSValues;
+import com.example.payload.common.DataPayload;
 import com.example.payload.common.PayloadStatus;
 import com.example.payload.common.StatusPublisher;
 
@@ -19,7 +19,7 @@ public class BhpubwrtProducer implements StatusPublisher {
 	private static final String REPLY_TOPIC = "payload-status";
 
 	@Autowired
-	private KafkaTemplate<String, TSValues[]> kafkaTemplate;
+	private KafkaTemplate<String, DataPayload[]> kafkaTemplate;
 
 	@Autowired
 	private org.springframework.kafka.core.KafkaTemplate<String, PayloadStatus> statusKafkaTemplate;
@@ -29,8 +29,8 @@ public class BhpubwrtProducer implements StatusPublisher {
 
 	private final ConcurrentMap<String, ClusterStatusAggregator> multiClusterStatus = new ConcurrentHashMap<>();
 
-	public void send(String key, List<TSValues> records) {
-		kafkaTemplate.send(REQUEST_TOPIC, key, records.toArray(new TSValues[0]));
+	public void send(String key, List<DataPayload> records) {
+		kafkaTemplate.send(REQUEST_TOPIC, key, records.toArray(new DataPayload[0]));
 		// initialize aggregator expecting 3 cluster replies (configurable later)
 		multiClusterStatus.computeIfAbsent(key, id -> new ClusterStatusAggregator(3));
 	}

@@ -1,7 +1,7 @@
 package com.example.payload;
 
 import com.example.payload.bhwrtam.KafkaPayloadProcessor;
-import com.example.payload.common.TSValues;
+import com.example.payload.common.DataPayload;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,9 +54,9 @@ public class KafkaPayloadProcessorShutdownTest {
     @Test
     void testNoProcessingAfterShutdown() throws InterruptedException {
         String payloadId = "shutdown-test";
-        List<TSValues> records = new ArrayList<>();
+        List<DataPayload> records = new ArrayList<>();
         for (int i = 0; i < 50; i++) {
-            TSValues r = new TSValues();
+            DataPayload r = new DataPayload();
             r.key = "key" + (i % 5);
             r.value = "value" + i;
             records.add(r);

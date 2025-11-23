@@ -4,7 +4,7 @@ import com.example.payload.bhpubwrt.BhpubwrtProducer;
 import com.example.payload.common.PayloadStatus;
 import com.example.payload.bhpubwrt.StatusStore;
 import com.example.payload.bhwrtam.KafkaPayloadProcessor;
-import com.example.payload.common.TSValues;
+import com.example.payload.common.DataPayload;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.AfterAll;
@@ -68,9 +68,9 @@ public class KafkaIntegrationTest {
         int expectedBatchSize = 10; // keys: key0..key9
         List<String> payloadIds = new ArrayList<>();
         for (int p = 1; p <= payloadCount; p++) {
-            List<TSValues> records = new ArrayList<>();
+            List<DataPayload> records = new ArrayList<>();
             for (int i = 0; i < 100; i++) {
-                TSValues r = new TSValues();
+                DataPayload r = new DataPayload();
                 r.key = "key" + (i % 10);
                 r.value = "value" + i;
                 records.add(r);

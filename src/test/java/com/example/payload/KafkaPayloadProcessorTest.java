@@ -1,7 +1,7 @@
 package com.example.payload;
 
 import com.example.payload.bhwrtam.KafkaPayloadProcessor;
-import com.example.payload.common.TSValues;
+import com.example.payload.common.DataPayload;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -31,9 +31,9 @@ public class KafkaPayloadProcessorTest {
 
         try {
             for (int p = 1; p <= 3; p++) {
-                List<TSValues> records = new ArrayList<>();
+                List<DataPayload> records = new ArrayList<>();
                 for (int i = 0; i < 100; i++) {
-                    TSValues r = new TSValues();
+                    DataPayload r = new DataPayload();
                     r.key = "key" + (i % 10);  // 10 different keys
                     r.value = "value" + i;
                     records.add(r);
