@@ -34,7 +34,7 @@ public class KafkaStatusConsumer {
         status.clusterId = clusterId; // annotate origin
         statusStore.add(status);
         bhpubwrtProducer.onStatus(status);
-        System.out.printf("[STATUS] cluster=%s payloadId=%s success=%s batchCount=%d completedAt=%d%n",
-                clusterId, status.payloadId, status.success, status.batchCount, status.completedAt);
+        System.out.printf("[STATUS] cluster=%s bhatsJobId=%s success=%s batchCount=%d completedAt=%d%n",
+                clusterId, status.bhatsJobId, status.success, status.batchCount, status.completedAt);
     }
 }

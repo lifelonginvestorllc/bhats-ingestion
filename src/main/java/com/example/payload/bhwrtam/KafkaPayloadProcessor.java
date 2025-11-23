@@ -85,17 +85,17 @@ public class KafkaPayloadProcessor {
 		return Math.abs(key.hashCode() % NUM_QUEUES);
 	}
 
-	public void submitLargePayload(String payloadId, List<DataPayload> records) throws InterruptedException {
+	public void submitLargePayload(String bhatsJobId, List<DataPayload> records) throws InterruptedException {
 		Map<String, List<DataPayload>> grouped = records.stream().collect(Collectors.groupingBy(r -> r.key));
 
 		int index = 0;
-		tracker.init(payloadId, grouped.size());
-		payloadBatchSizes.put(payloadId, grouped.size()); // track batch size per payload
+		tracker.init(bhatsJobId, grouped.size());
+		payloadBatchSizes.put(bhatsJobId, grouped.size()); // track batch size per payload
 
 		for (Map.Entry<String, List<DataPayload>> entry : grouped.entrySet()) {
 			String key = entry.getKey();
 			int queueId = route(key);
-			SubBatch batch = new SubBatch(payloadId, index++, key, entry.getValue());
+			SubBatch batch = new SubBatch(bhatsJobId, index++, key, entry.getValue());
 			queueMap.get(queueId).put(batch);
 		}
 	}
@@ -121,9 +121,9 @@ public class KafkaPayloadProcessor {
 				}
 				try {
 					processBatch(batch);
-					tracker.update(batch.payloadId, batch.index, SubBatchStatus.SUCCESS);
+					tracker.update(batch.bhatsJobId, batch.index, SubBatchStatus.SUCCESS);
 				} catch (Exception e) {
-					tracker.update(batch.payloadId, batch.index, SubBatchStatus.FAILURE);
+					tracker.update(batch.bhatsJobId, batch.index, SubBatchStatus.FAILURE);
 				}
 			} catch (InterruptedException e) {
 				Thread.currentThread().interrupt();
@@ -132,7 +132,7 @@ public class KafkaPayloadProcessor {
 	}
 
 	private void processBatch(SubBatch batch) {
-		System.out.printf("Processing payload %s, key %s, batch %d with %d records%n", batch.payloadId, batch.key,
+		System.out.printf("Processing payload %s, key %s, batch %d with %d records%n", batch.bhatsJobId, batch.key,
 				batch.index, batch.records.size());
 
 		if (failKey != null && !failKey.isBlank() && batch.key.equals(failKey)) {
@@ -143,21 +143,21 @@ public class KafkaPayloadProcessor {
 		}
 	}
 
-	private void handleCompletePayload(String payloadId) {
-		boolean success = tracker.isSuccessful(payloadId);
-		System.out.printf("Payload %s COMPLETED. Status: %s%n", payloadId, success ? "SUCCESS" : "FAILURE");
-		tracker.remove(payloadId);
+	private void handleCompletePayload(String bhatsJobId) {
+		boolean success = tracker.isSuccessful(bhatsJobId);
+		System.out.printf("Payload %s COMPLETED. Status: %s%n", bhatsJobId, success ? "SUCCESS" : "FAILURE");
+		tracker.remove(bhatsJobId);
 		completedPayloads.incrementAndGet();
 		if (success) {
 			successfulPayloads.incrementAndGet();
-			successfulPayloadIds.add(payloadId);
+			successfulPayloadIds.add(bhatsJobId);
 		}
-		int batchSize = payloadBatchSizes.getOrDefault(payloadId, 0);
+		int batchSize = payloadBatchSizes.getOrDefault(bhatsJobId, 0);
 		if (statusPublisher != null) {
 			// send single status; three consumer groups will each create their own
 			// cluster-tagged reply
-			statusPublisher.publishStatus(new PayloadStatus(payloadId, success, batchSize, null));
+			statusPublisher.publishStatus(new PayloadStatus(bhatsJobId, success, batchSize, null));
 		}
-		payloadBatchSizes.remove(payloadId); // cleanup
+		payloadBatchSizes.remove(bhatsJobId); // cleanup
 	}
 }

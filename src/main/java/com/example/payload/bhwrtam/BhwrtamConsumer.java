@@ -18,11 +18,11 @@ public class BhwrtamConsumer {
 
     @KafkaListener(topics = "payload-topic", groupId = "payload-group")
     public void listen(ConsumerRecord<String, Payload> record) {
-        String payloadId = record.value().payloadId; // extract from Payload object
+        String bhatsJobId = record.value().bhatsJobId; // extract from Payload object
         try {
             DataPayload[] array = record.value().data;
             List<DataPayload> list = Arrays.asList(array);
-            kafkaPayloadProcessor.submitLargePayload(payloadId, list);
+            kafkaPayloadProcessor.submitLargePayload(bhatsJobId, list);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }

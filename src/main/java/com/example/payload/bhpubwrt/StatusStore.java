@@ -11,7 +11,7 @@ public class StatusStore {
     private final Map<String, PayloadStatus> statuses = new ConcurrentHashMap<>();
 
     public void add(PayloadStatus status) {
-        statuses.put(status.payloadId, status);
+        statuses.put(status.bhatsJobId, status);
     }
 
     public Map<String, PayloadStatus> getAll() {
@@ -22,8 +22,8 @@ public class StatusStore {
         return statuses.size();
     }
 
-    public PayloadStatus get(String payloadId) {
-        return statuses.get(payloadId);
+    public PayloadStatus get(String bhatsJobId) {
+        return statuses.get(bhatsJobId);
     }
 
     public void clear() {

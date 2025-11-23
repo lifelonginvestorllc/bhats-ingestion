@@ -14,23 +14,23 @@ public class StatusTracker {
         this.onCompleteSink = onCompleteSink;
     }
 
-    public void init(String payloadId, int batchCount) {
-        tracker.put(payloadId, Collections.synchronizedList(new ArrayList<>(Collections.nCopies(batchCount, null))));
+    public void init(String bhatsJobId, int batchCount) {
+        tracker.put(bhatsJobId, Collections.synchronizedList(new ArrayList<>(Collections.nCopies(batchCount, null))));
     }
 
-    public synchronized void update(String payloadId, int index, SubBatchStatus status) {
-        List<SubBatchStatus> statuses = tracker.get(payloadId);
+    public synchronized void update(String bhatsJobId, int index, SubBatchStatus status) {
+        List<SubBatchStatus> statuses = tracker.get(bhatsJobId);
         statuses.set(index, status);
         if (statuses.stream().noneMatch(Objects::isNull)) {
-            onCompleteSink.tryEmitNext(payloadId);
+            onCompleteSink.tryEmitNext(bhatsJobId);
         }
     }
 
-    public boolean isSuccessful(String payloadId) {
-        return tracker.get(payloadId).stream().allMatch(s -> s == SubBatchStatus.SUCCESS);
+    public boolean isSuccessful(String bhatsJobId) {
+        return tracker.get(bhatsJobId).stream().allMatch(s -> s == SubBatchStatus.SUCCESS);
     }
 
-    public void remove(String payloadId) {
-        tracker.remove(payloadId);
+    public void remove(String bhatsJobId) {
+        tracker.remove(bhatsJobId);
     }
 }

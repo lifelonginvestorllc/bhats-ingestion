@@ -39,7 +39,7 @@ public class BhpubwrtProducer implements StatusPublisher {
 
 	@Override
 	public void publishStatus(PayloadStatus status) {
-		statusKafkaTemplate.send(REPLY_TOPIC, status.payloadId, status);
+		statusKafkaTemplate.send(REPLY_TOPIC, status.bhatsJobId, status);
 	}
 
 	// Deprecated: use publishStatus instead
@@ -49,11 +49,11 @@ public class BhpubwrtProducer implements StatusPublisher {
 
 	// Called by status consumers when each cluster replies
 	public void onStatus(PayloadStatus status) {
-		multiClusterStatus.computeIfAbsent(status.payloadId, id -> new ClusterStatusAggregator(3)).add(status);
+		multiClusterStatus.computeIfAbsent(status.bhatsJobId, id -> new ClusterStatusAggregator(3)).add(status);
 	}
 
-	public AggregatedPayloadStatus getAggregatedStatus(String payloadId) {
-		ClusterStatusAggregator agg = multiClusterStatus.get(payloadId);
+	public AggregatedPayloadStatus getAggregatedStatus(String bhatsJobId) {
+		ClusterStatusAggregator agg = multiClusterStatus.get(bhatsJobId);
 		return agg == null ? null : agg.toAggregated();
 	}
 }

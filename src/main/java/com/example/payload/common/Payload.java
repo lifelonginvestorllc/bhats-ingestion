@@ -1,14 +1,14 @@
 package com.example.payload.common;
 
 public class Payload {
-    public String payloadId;
+    public String bhatsJobId;
     public DataPayload[] data;
 
     public Payload() {
     }
 
-    public Payload(String payloadId, DataPayload[] data) {
-        this.payloadId = payloadId;
+    public Payload(String bhatsJobId, DataPayload[] data) {
+        this.bhatsJobId = bhatsJobId;
         this.data = data;
     }
 }

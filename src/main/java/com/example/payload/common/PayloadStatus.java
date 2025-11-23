@@ -5,7 +5,7 @@ package com.example.payload.common;
  * This is a shared model used by both bhpubwrt (producer/aggregator) and bhwrtam (consumer/processor).
  */
 public class PayloadStatus {
-    public String payloadId;
+    public String bhatsJobId;
     public boolean success;
     public int batchCount;
     public long completedAt;
@@ -13,8 +13,8 @@ public class PayloadStatus {
 
     public PayloadStatus() {}
 
-    public PayloadStatus(String payloadId, boolean success, int batchCount, String clusterId) {
-        this.payloadId = payloadId;
+    public PayloadStatus(String bhatsJobId, boolean success, int batchCount, String clusterId) {
+        this.bhatsJobId = bhatsJobId;
         this.success = success;
         this.batchCount = batchCount;
         this.completedAt = System.currentTimeMillis();
