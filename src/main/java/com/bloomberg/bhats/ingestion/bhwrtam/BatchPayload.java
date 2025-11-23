@@ -6,12 +6,12 @@ import java.util.List;
 
 public class BatchPayload {
     public String bhatsJobId;
-    public Integer queueId;
+    public Integer batchId;
     public List<DataPayload> dataPayloads;
 
-    public BatchPayload(String bhatsJobId, Integer queueId, List<DataPayload> dataPayloads) {
+    public BatchPayload(String bhatsJobId, Integer batchId, List<DataPayload> dataPayloads) {
         this.bhatsJobId = bhatsJobId;
-        this.queueId = queueId;
+        this.batchId = batchId;
         this.dataPayloads = dataPayloads;
     }
 }
