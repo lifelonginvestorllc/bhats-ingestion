@@ -41,7 +41,7 @@ public class PayloadStatusStore {
     /**
      * Gets aggregated status for a job by combining all sub-payload statuses.
      *
-     * @param originalJobId The original job ID (without partition suffix)
+     * @param originalJobId The original job ID (without a partition suffix)
      * @return Aggregated PayloadStatus or null if no sub-payloads found
      */
     public PayloadStatus getAggregated(String originalJobId) {

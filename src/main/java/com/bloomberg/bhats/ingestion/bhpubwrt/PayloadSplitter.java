@@ -49,8 +49,7 @@ public class PayloadSplitter {
 
             // Create sub-payload with partitionId suffix in bhatsJobId and set partitionId
             String subJobId = originalPayload.bhatsJobId + "-p" + partitionId;
-            Payload subPayload = new Payload(subJobId, dataPayloads);
-            subPayload.partitionId = partitionId;
+            Payload subPayload = new Payload(subJobId, partitionId, dataPayloads);
             subPayloads.add(subPayload);
         }
 
