@@ -18,6 +18,7 @@ import org.testcontainers.containers.KafkaContainer;
 import org.testcontainers.utility.DockerImageName;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -69,7 +70,7 @@ public class MultiClusterKafkaIntegrationTest {
             r.tsid = "tsid" + (i % 10);
             Datapoint dp = new Datapoint();
             dp.value = "value" + i;
-            r.value = dp;
+            r.datapoints = Arrays.asList(dp);
             records.add(r);
         }
         producer.send(payloadId, records);

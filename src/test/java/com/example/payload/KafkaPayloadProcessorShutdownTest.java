@@ -16,6 +16,7 @@ import org.testcontainers.containers.KafkaContainer;
 import org.testcontainers.utility.DockerImageName;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -61,7 +62,7 @@ public class KafkaPayloadProcessorShutdownTest {
             r.tsid = "tsid" + (i % 5);
             Datapoint dp = new Datapoint();
             dp.value = "value" + i;
-            r.value = dp;
+            r.datapoints = Arrays.asList(dp);
             records.add(r);
         }
         payloadService.submitLargePayload(payloadId, records);

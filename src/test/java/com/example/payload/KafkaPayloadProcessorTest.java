@@ -6,6 +6,7 @@ import com.example.payload.common.Datapoint;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -38,7 +39,7 @@ public class KafkaPayloadProcessorTest {
                     r.tsid = "tsid" + (i % 10);  // 10 different keys
                     Datapoint dp = new Datapoint();
                     dp.value = "value" + i;
-                    r.value = dp;
+                    r.datapoints = Arrays.asList(dp);
                     records.add(r);
                 }
                 payloadService.submitLargePayload("payload-" + p, records);
