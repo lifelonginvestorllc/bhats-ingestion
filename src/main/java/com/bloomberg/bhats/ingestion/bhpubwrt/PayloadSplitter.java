@@ -37,20 +37,20 @@ public class PayloadSplitter {
         Map<Integer, List<DataPayload>> partitionMap = new HashMap<>();
 
         for (DataPayload dataPayload : originalPayload.dataPayloads) {
-            int partition = getPartition(dataPayload.tsid);
-            partitionMap.computeIfAbsent(partition, k -> new ArrayList<>()).add(dataPayload);
+            int partitionId = getPartitionId(dataPayload.tsid);
+            partitionMap.computeIfAbsent(partitionId, k -> new ArrayList<>()).add(dataPayload);
         }
 
         // Create sub-payloads for each partition
         List<Payload> subPayloads = new ArrayList<>();
         for (Map.Entry<Integer, List<DataPayload>> entry : partitionMap.entrySet()) {
-            int partition = entry.getKey();
+            int partitionId = entry.getKey();
             List<DataPayload> dataPayloads = entry.getValue();
 
-            // Create sub-payload with partition suffix in bhatsJobId and set partitionId
-            String subJobId = originalPayload.bhatsJobId + "-p" + partition;
+            // Create sub-payload with partitionId suffix in bhatsJobId and set partitionId
+            String subJobId = originalPayload.bhatsJobId + "-p" + partitionId;
             Payload subPayload = new Payload(subJobId, dataPayloads);
-            subPayload.partitionId = partition;
+            subPayload.partitionId = partitionId;
             subPayloads.add(subPayload);
         }
 
@@ -63,7 +63,7 @@ public class PayloadSplitter {
      * @param tsid The time series identifier
      * @return The partition number (0 to numPartitions-1)
      */
-    public int getPartition(String tsid) {
+    public int getPartitionId(String tsid) {
         if (tsid == null) {
             return 0;
         }

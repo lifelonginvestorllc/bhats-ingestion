@@ -76,11 +76,11 @@ public class PayloadSplitterTest {
         String tsid = "test-tsid-123";
 
         // Same tsid should always map to same partition
-        int partition1 = splitter.getPartition(tsid);
-        int partition2 = splitter.getPartition(tsid);
+        int partitionId1 = splitter.getPartitionId(tsid);
+        int partitionId2 = splitter.getPartitionId(tsid);
 
-        assertEquals(partition1, partition2, "Same tsid should always map to same partition");
-        assertTrue(partition1 >= 0 && partition1 < 3, "Partition should be in valid range");
+        assertEquals(partitionId1, partitionId2, "Same tsid should always map to same partition");
+        assertTrue(partitionId1 >= 0 && partitionId1 < 3, "Partition should be in valid range");
     }
 
     @Test
@@ -113,7 +113,7 @@ public class PayloadSplitterTest {
 
             // Verify all tsids in this sub-payload map to the same partition
             for (DataPayload dp : subPayload.dataPayloads) {
-                assertEquals(subPayload.partitionId, splitter.getPartition(dp.tsid),
+                assertEquals(subPayload.partitionId, splitter.getPartitionId(dp.tsid),
                     "All tsids in sub-payload should map to the sub-payload's partitionId");
             }
         }
@@ -165,7 +165,7 @@ public class PayloadSplitterTest {
             // All tsids in a sub-payload should map to the same partition
             Map<Integer, Long> partitionCounts = subPayload.dataPayloads.stream()
                 .collect(Collectors.groupingBy(
-                    dp -> splitter.getPartition(dp.tsid),
+                    dp -> splitter.getPartitionId(dp.tsid),
                     Collectors.counting()
                 ));
 
