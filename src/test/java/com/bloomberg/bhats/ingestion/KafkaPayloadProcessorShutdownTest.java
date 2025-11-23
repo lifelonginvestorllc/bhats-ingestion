@@ -17,6 +17,7 @@ import org.testcontainers.containers.KafkaContainer;
 import org.testcontainers.utility.DockerImageName;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -61,8 +62,8 @@ public class KafkaPayloadProcessorShutdownTest {
             DataPayload r = new DataPayload();
             r.tsid = "tsid" + (i % 5);
             Datapoint dp = new Datapoint();
-            dp.column = "column" + (i % 3);
-            dp.value = "datapoint" + i;
+            dp.periodDate = new Date(System.currentTimeMillis() + (i % 3) * 86400000L); // different dates
+            dp.priceValue = 100.0 + i;
             r.datapoints = List.of(dp);
             dataPayloads.add(r);
         }

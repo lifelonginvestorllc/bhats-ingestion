@@ -7,6 +7,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -45,8 +46,8 @@ public class PayloadSplitterTest {
             DataPayload dp = new DataPayload();
             dp.tsid = "tsid" + i;
             Datapoint datapoint = new Datapoint();
-            datapoint.column = "column1";
-            datapoint.value = "value" + i;
+            datapoint.periodDate = new Date(System.currentTimeMillis());
+            datapoint.priceValue = 100.0 + i;
             dp.datapoints = List.of(datapoint);
             dataPayloads.add(dp);
         }
@@ -92,8 +93,8 @@ public class PayloadSplitterTest {
             DataPayload dp = new DataPayload();
             dp.tsid = "tsid" + i;
             Datapoint datapoint = new Datapoint();
-            datapoint.column = "column1";
-            datapoint.value = "value" + i;
+            datapoint.periodDate = new Date(System.currentTimeMillis());
+            datapoint.priceValue = 100.0 + i;
             dp.datapoints = List.of(datapoint);
             dataPayloads.add(dp);
         }
@@ -128,8 +129,8 @@ public class PayloadSplitterTest {
             DataPayload dp = new DataPayload();
             dp.tsid = "same-tsid";
             Datapoint datapoint = new Datapoint();
-            datapoint.column = "column" + i;
-            datapoint.value = "value" + i;
+            datapoint.periodDate = new Date(System.currentTimeMillis() + i * 86400000L);
+            datapoint.priceValue = 100.0 + i;
             dp.datapoints = List.of(datapoint);
             dataPayloads.add(dp);
         }
@@ -151,8 +152,8 @@ public class PayloadSplitterTest {
             DataPayload dp = new DataPayload();
             dp.tsid = "tsid" + (i % 10); // 10 different tsids
             Datapoint datapoint = new Datapoint();
-            datapoint.column = "column1";
-            datapoint.value = "value" + i;
+            datapoint.periodDate = new Date(System.currentTimeMillis());
+            datapoint.priceValue = 100.0 + i;
             dp.datapoints = List.of(datapoint);
             dataPayloads.add(dp);
         }
@@ -181,8 +182,8 @@ public class PayloadSplitterTest {
         DataPayload dp = new DataPayload();
         dp.tsid = null;
         Datapoint datapoint = new Datapoint();
-        datapoint.column = "column1";
-        datapoint.value = "value1";
+        datapoint.periodDate = new Date(System.currentTimeMillis());
+        datapoint.priceValue = 100.0;
         dp.datapoints = List.of(datapoint);
         dataPayloads.add(dp);
 

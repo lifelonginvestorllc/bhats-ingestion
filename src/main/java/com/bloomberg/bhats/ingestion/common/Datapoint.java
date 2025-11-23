@@ -1,6 +1,8 @@
 package com.bloomberg.bhats.ingestion.common;
 
+import java.util.Date;
+
 public class Datapoint {
-    public String column;
-    public String value;
+    public Date periodDate;
+    public Double priceValue;
 }

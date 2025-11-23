@@ -7,6 +7,7 @@ import com.bloomberg.bhats.ingestion.common.Payload;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -38,8 +39,8 @@ public class KafkaPayloadProcessorTest {
                     DataPayload r = new DataPayload();
                     r.tsid = "tsid" + (i % 10);  // 10 different keys
                     Datapoint dp = new Datapoint();
-                    dp.column = "column" + (i % 3);
-                    dp.value = "datapoint" + i;
+                    dp.periodDate = new Date(System.currentTimeMillis() + (i % 3) * 86400000L);
+                    dp.priceValue = 100.0 + i;
                     r.datapoints = List.of(dp);
                     dataPayloads.add(r);
                 }

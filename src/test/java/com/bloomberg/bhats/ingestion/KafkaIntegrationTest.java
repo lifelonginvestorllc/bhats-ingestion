@@ -20,6 +20,7 @@ import org.testcontainers.containers.KafkaContainer;
 import org.testcontainers.utility.DockerImageName;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -68,7 +69,7 @@ public class KafkaIntegrationTest {
     public void testKafkaPayloadProcessing() {
         statusStore.clear();
         int payloadCount = 3;
-        int expectedBatchSize = 10; // keys: key0..key9
+        int expectedBatchSize = 10; // tsids: tsids0..tsids9
         List<String> bhatsJobIds = new ArrayList<>();
         for (int p = 1; p <= payloadCount; p++) {
             List<DataPayload> dataPayloads = new ArrayList<>();
@@ -76,12 +77,12 @@ public class KafkaIntegrationTest {
                 DataPayload r = new DataPayload();
                 r.tsid = "tsid" + (i % 10);
                 Datapoint dp = new Datapoint();
-                dp.column = "column" + (i % 3);
-                dp.value = "datapoint" + i;
+                dp.periodDate = new Date(System.currentTimeMillis() + (i % 3) * 86400000L);
+                dp.priceValue = 100.0 + i;
                 r.datapoints = List.of(dp);
                 dataPayloads.add(r);
             }
-            String bhatsJobId = "partition-key-" + p;
+            String bhatsJobId = "bhatsJobId-tsid" + p;
             bhatsJobIds.add(bhatsJobId);
             Payload payload = new Payload(bhatsJobId, dataPayloads);
             producer.send(payload);
@@ -89,10 +90,10 @@ public class KafkaIntegrationTest {
 
         // Wait for all payloads to have aggregated status with complete batch counts
         await().atMost(30, TimeUnit.SECONDS).until(() ->
-            bhatsJobIds.stream().allMatch(id -> {
-                PayloadStatus status = statusStore.get(id);
-                return status != null && status.batchCount == expectedBatchSize;
-            })
+                bhatsJobIds.stream().allMatch(id -> {
+                    PayloadStatus status = statusStore.get(id);
+                    return status != null && status.batchCount == expectedBatchSize;
+                })
         );
 
         // Note: getCompletedPayloads() now counts sub-payloads, so it will be > payloadCount
