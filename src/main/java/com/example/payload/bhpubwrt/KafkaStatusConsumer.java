@@ -30,10 +30,10 @@ public class KafkaStatusConsumer {
 
     private void process(ConsumerRecord<String, PayloadStatus> record, String clusterId) {
         PayloadStatus status = record.value();
-        status.clusterId = clusterId; // annotate origin
+        // Do not override status.clusterId; keep origin cluster set by producer
         statusStore.add(status);
         bhpubwrtProducer.onStatus(status);
         System.out.printf("[STATUS] cluster=%s payloadId=%s success=%s batchCount=%d completedAt=%d%n",
-                clusterId, status.payloadId, status.success, status.batchCount, status.completedAt);
+                status.clusterId, status.payloadId, status.success, status.batchCount, status.completedAt);
     }
 }

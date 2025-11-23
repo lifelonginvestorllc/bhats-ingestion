@@ -4,6 +4,7 @@ import com.example.payload.common.TSValues;
 import com.example.payload.bhpubwrt.BhpubwrtProducer;
 import com.example.payload.bhpubwrt.PayloadStatus;
 import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -16,6 +17,7 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class KafkaPayloadProcessor {
@@ -29,11 +31,16 @@ public class KafkaPayloadProcessor {
 	private boolean randomFailures;
 	@Value("${payload.failKey:}")
 	private String failKey;
+	@Value("${payload.failClusters:}")
+	private String failClustersRaw;
+	private java.util.Set<String> failClusters = java.util.Collections.emptySet();
 	private final AtomicBoolean shuttingDown = new AtomicBoolean(false);
 	private final AtomicInteger completedPayloads = new AtomicInteger(0);
 	private final AtomicInteger successfulPayloads = new AtomicInteger(0);
 	private final List<String> successfulPayloadIds = Collections.synchronizedList(new ArrayList<>());
 	private final ConcurrentMap<String, Integer> payloadBatchSizes = new ConcurrentHashMap<>();
+	private final ConcurrentMap<String, java.util.Set<String>> clustersCompleted = new ConcurrentHashMap<>();
+	private final ConcurrentMap<String, Boolean> basePayloadCounted = new ConcurrentHashMap<>();
 
 	@Autowired(required = false)
 	private BhpubwrtProducer bhpubwrtProducer; // optional injection for status publishing
@@ -42,14 +49,14 @@ public class KafkaPayloadProcessor {
 	// for workers.
 	public KafkaPayloadProcessor() {
 		this.executorService = Executors.newFixedThreadPool(NUM_QUEUES);
-		init();
+		// defer init until @PostConstruct or first use
 	}
 
 	// Package-private constructor for tests to inject a custom ExecutorService
 	// (e.g., daemon threads).
 	public KafkaPayloadProcessor(ExecutorService executorService) {
 		this.executorService = executorService;
-		init();
+		// defer init; tests using direct construction will trigger lazy init on first submit
 	}
 
 	// Allow tests to shut down worker threads.
@@ -69,6 +76,13 @@ public class KafkaPayloadProcessor {
 		if (!started.compareAndSet(false, true)) {
 			return; // already initialized
 		}
+		// parse fail clusters
+		if (failClustersRaw != null && !failClustersRaw.isBlank()) {
+			failClusters = Stream.of(failClustersRaw.split(","))
+					.map(String::trim)
+					.filter(s -> !s.isEmpty())
+					.collect(java.util.stream.Collectors.toSet());
+		}
 		tracker = new StatusTracker(onCompleteSink);
 		for (int i = 0; i < NUM_QUEUES; i++) {
 			BlockingQueue<SubBatch> queue = new LinkedBlockingQueue<>(100);
@@ -85,13 +99,18 @@ public class KafkaPayloadProcessor {
 		return Math.abs(key.hashCode() % NUM_QUEUES);
 	}
 
-	public void submitLargePayload(String payloadId, List<TSValues> records) throws InterruptedException {
-		Map<String, List<TSValues>> grouped = records.stream().collect(Collectors.groupingBy(r -> r.key));
+	private void ensureStarted() {
+		if (!started.get()) {
+			init();
+		}
+	}
 
+	public void submitLargePayload(String payloadId, List<TSValues> records) throws InterruptedException {
+		ensureStarted();
+		Map<String, List<TSValues>> grouped = records.stream().collect(Collectors.groupingBy(r -> r.key));
 		int index = 0;
 		tracker.init(payloadId, grouped.size());
-		payloadBatchSizes.put(payloadId, grouped.size()); // track batch size per payload
-
+		payloadBatchSizes.put(payloadId, grouped.size());
 		for (Map.Entry<String, List<TSValues>> entry : grouped.entrySet()) {
 			String key = entry.getKey();
 			int queueId = route(key);
@@ -135,8 +154,15 @@ public class KafkaPayloadProcessor {
 		System.out.printf("Processing payload %s, key %s, batch %d with %d records%n", batch.payloadId, batch.key,
 				batch.index, batch.records.size());
 
-		if (failKey != null && !failKey.isBlank() && batch.key.equals(failKey)) {
-			throw new RuntimeException("Forced failure for testing: key=" + failKey);
+		String clusterId = "cluster-unknown";
+		if (batch.payloadId.contains("::")) {
+			String[] parts = batch.payloadId.split("::", 2);
+			clusterId = parts[1];
+		}
+		boolean clusterShouldFail = failClusters.contains(clusterId);
+
+		if (failKey != null && !failKey.isBlank() && batch.key.equals(failKey) && clusterShouldFail) {
+			throw new RuntimeException("Forced failure for testing: key=" + failKey + " cluster=" + clusterId);
 		}
 		if (randomFailures && Math.random() < 0.05) {
 			throw new RuntimeException("Simulated failure");
@@ -145,19 +171,36 @@ public class KafkaPayloadProcessor {
 
 	private void handleCompletePayload(String payloadId) {
 		boolean success = tracker.isSuccessful(payloadId);
-		System.out.printf("Payload %s COMPLETED. Status: %s%n", payloadId, success ? "SUCCESS" : "FAILURE");
-		tracker.remove(payloadId);
-		completedPayloads.incrementAndGet();
+		String clusterId = "cluster-unknown";
+		String clusterScopedId = payloadId;
+		if (payloadId.contains("::")) {
+			String[] parts = payloadId.split("::",2);
+			clusterId = parts[1];
+			payloadId = parts[0];
+		}
+		System.out.printf("Payload %s COMPLETED in %s. Status: %s%n", payloadId, clusterId, success ? "SUCCESS" : "FAILURE");
+		tracker.remove(clusterScopedId);
+		// Increment completedPayloads only once per base payload id
+		if (basePayloadCounted.putIfAbsent(payloadId, true) == null) {
+			completedPayloads.incrementAndGet();
+			if (success) {
+				successfulPayloads.incrementAndGet();
+			}
+		}
 		if (success) {
-			successfulPayloads.incrementAndGet();
-			successfulPayloadIds.add(payloadId);
+			successfulPayloadIds.add(payloadId + "@" + clusterId);
 		}
-		int batchSize = payloadBatchSizes.getOrDefault(payloadId, 0);
+		int batchSize = payloadBatchSizes.getOrDefault(clusterScopedId, 0);
 		if (bhpubwrtProducer != null) {
-			// send single status; three consumer groups will each create their own
-			// cluster-tagged reply
-			bhpubwrtProducer.sendStatus(new PayloadStatus(payloadId, success, batchSize, null));
+			// still publish per cluster status for multi-cluster aggregation
+			bhpubwrtProducer.sendStatus(new PayloadStatus(payloadId, success, batchSize, clusterId));
 		}
-		payloadBatchSizes.remove(payloadId); // cleanup
+		payloadBatchSizes.remove(clusterScopedId);
+		clustersCompleted.computeIfAbsent(payloadId, id -> ConcurrentHashMap.newKeySet()).add(clusterId);
+	}
+
+	@PreDestroy
+	public void preDestroy() {
+		shutdown();
 	}
 }

@@ -7,7 +7,6 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
-import java.util.List;
 
 @Component
 public class BhwrtamConsumer {
@@ -15,13 +14,26 @@ public class BhwrtamConsumer {
     @Autowired
     private KafkaPayloadProcessor kafkaPayloadProcessor;
 
-    @KafkaListener(topics = "payload-topic", groupId = "payload-group")
-    public void listen(ConsumerRecord<String, TSValues[]> record) {
-        String payloadId = record.key(); // use producer-provided key as stable payloadId
+    @KafkaListener(topics = "payload-topic", groupId = "payload-group-cluster1")
+    public void listenCluster1(ConsumerRecord<String, TSValues[]> record) {
+        handle(record, "cluster-1");
+    }
+
+    @KafkaListener(topics = "payload-topic", groupId = "payload-group-cluster2")
+    public void listenCluster2(ConsumerRecord<String, TSValues[]> record) {
+        handle(record, "cluster-2");
+    }
+
+    @KafkaListener(topics = "payload-topic", groupId = "payload-group-cluster3")
+    public void listenCluster3(ConsumerRecord<String, TSValues[]> record) {
+        handle(record, "cluster-3");
+    }
+
+    private void handle(ConsumerRecord<String, TSValues[]> record, String clusterId) {
+        String payloadId = record.key() + "::" + clusterId; // embed cluster in id for processor
         try {
             TSValues[] array = record.value();
-            List<TSValues> list = Arrays.asList(array);
-            kafkaPayloadProcessor.submitLargePayload(payloadId, list);
+            kafkaPayloadProcessor.submitLargePayload(payloadId, Arrays.asList(array));
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }

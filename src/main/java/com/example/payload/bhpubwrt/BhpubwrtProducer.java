@@ -5,6 +5,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
@@ -22,6 +23,9 @@ public class BhpubwrtProducer {
 	@Autowired
 	private org.springframework.kafka.core.KafkaTemplate<String, PayloadStatus> statusKafkaTemplate;
 
+	@Value("${spring.kafka.reply.clusters:3}")
+	private int expectedClusterReplies;
+
 	// status templates from other clusters not used for sending; replies will
 	// arrive via consumers
 
@@ -29,8 +33,7 @@ public class BhpubwrtProducer {
 
 	public void send(String key, List<TSValues> records) {
 		kafkaTemplate.send(REQUEST_TOPIC, key, records.toArray(new TSValues[0]));
-		// initialize aggregator expecting 3 cluster replies (configurable later)
-		multiClusterStatus.computeIfAbsent(key, id -> new ClusterStatusAggregator(3));
+		multiClusterStatus.computeIfAbsent(key, id -> new ClusterStatusAggregator(expectedClusterReplies));
 	}
 
 	public void sendStatus(PayloadStatus status) {
@@ -39,7 +42,7 @@ public class BhpubwrtProducer {
 
 	// Called by status consumers when each cluster replies
 	public void onStatus(PayloadStatus status) {
-		multiClusterStatus.computeIfAbsent(status.payloadId, id -> new ClusterStatusAggregator(3)).add(status);
+		multiClusterStatus.computeIfAbsent(status.payloadId, id -> new ClusterStatusAggregator(expectedClusterReplies)).add(status);
 	}
 
 	public AggregatedPayloadStatus getAggregatedStatus(String payloadId) {
