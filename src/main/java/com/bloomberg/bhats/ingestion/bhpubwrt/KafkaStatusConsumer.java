@@ -14,17 +14,17 @@ public class KafkaStatusConsumer {
     @Autowired
     private BhpubwrtProducer bhpubwrtProducer;
 
-    @KafkaListener(topics = "payload-status", groupId = "payload-status-group-primary", containerFactory = "statusKafkaListenerContainerFactory")
+    @KafkaListener(topics = "reply-status-topic", groupId = "reply-status-group-primary", containerFactory = "statusKafkaListenerContainerFactory")
     public void listenStatusPrimary(ConsumerRecord<String, PayloadStatus> record) {
         process(record, "cluster-1");
     }
 
-    @KafkaListener(topics = "payload-status", groupId = "payload-status-group-secondary", containerFactory = "statusKafkaListenerContainerFactory")
+    @KafkaListener(topics = "reply-status-topic", groupId = "reply-status-group-secondary", containerFactory = "statusKafkaListenerContainerFactory")
     public void listenStatusSecondary(ConsumerRecord<String, PayloadStatus> record) {
         process(record, "cluster-2");
     }
 
-    @KafkaListener(topics = "payload-status", groupId = "payload-status-group-tertiary", containerFactory = "statusKafkaListenerContainerFactory")
+    @KafkaListener(topics = "reply-status-topic", groupId = "reply-status-group-tertiary", containerFactory = "statusKafkaListenerContainerFactory")
     public void listenStatusTertiary(ConsumerRecord<String, PayloadStatus> record) {
         process(record, "cluster-3");
     }

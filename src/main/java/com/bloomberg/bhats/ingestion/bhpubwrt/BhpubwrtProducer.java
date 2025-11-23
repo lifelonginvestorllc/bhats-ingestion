@@ -15,8 +15,8 @@ import com.bloomberg.bhats.ingestion.common.StatusPublisher;
 @Component
 public class BhpubwrtProducer implements StatusPublisher {
 
-	private static final String REQUEST_TOPIC = "payload-topic";
-	private static final String REPLY_TOPIC = "payload-status";
+	private static final String REQUEST_TOPIC = "ingest-payload-topic";
+	private static final String REPLY_TOPIC = "reply-status-topic";
 
 	@Autowired
 	private KafkaTemplate<String, Payload> kafkaTemplate;

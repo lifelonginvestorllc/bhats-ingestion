@@ -25,8 +25,8 @@ import java.util.Map;
 @Configuration
 public class KafkaConfig {
 
-    private static final String REQUEST_TOPIC = "payload-topic";
-    private static final String REPLY_TOPIC = "payload-status";
+    private static final String INGEST_PAYLOAD_TOPIC = "ingest-payload-topic";
+    private static final String REPLY_STATUS_TOPIC = "reply-status-topic";
 
     @Value("${spring.kafka.bootstrap-servers:localhost:9092}")
     private String bootstrapServers;
@@ -41,19 +41,19 @@ public class KafkaConfig {
 
     @Bean
     public NewTopic payloadRequestTopic() {
-        return new NewTopic(REQUEST_TOPIC, payloadTopicPartitions, (short) 1);
+        return new NewTopic(INGEST_PAYLOAD_TOPIC, payloadTopicPartitions, (short) 1);
     }
 
     @Bean
     public NewTopic payloadStatusTopic() {
-        return new NewTopic(REPLY_TOPIC, 1, (short) 1);
+        return new NewTopic(REPLY_STATUS_TOPIC, 1, (short) 1);
     }
 
     @Bean
     public ConsumerFactory<String, Payload> consumerFactory() {
         Map<String, Object> props = new HashMap<>();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-        props.put(ConsumerConfig.GROUP_ID_CONFIG, "payload-group");
+        props.put(ConsumerConfig.GROUP_ID_CONFIG, "ingest-payload-group");
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
 
@@ -62,16 +62,16 @@ public class KafkaConfig {
         deserializer.ignoreTypeHeaders(); // we don't rely on type headers for generic List
 
         return new DefaultKafkaConsumerFactory<>(
-            props,
-            new StringDeserializer(),
-            deserializer
+                props,
+                new StringDeserializer(),
+                deserializer
         );
     }
 
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, Payload> kafkaListenerContainerFactory() {
         ConcurrentKafkaListenerContainerFactory<String, Payload> factory =
-            new ConcurrentKafkaListenerContainerFactory<>();
+                new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory());
         return factory;
     }
@@ -140,7 +140,7 @@ public class KafkaConfig {
     public ConsumerFactory<String, PayloadStatus> statusConsumerFactory() {
         Map<String, Object> props = new HashMap<>();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-        props.put(ConsumerConfig.GROUP_ID_CONFIG, "payload-status-group");
+        props.put(ConsumerConfig.GROUP_ID_CONFIG, "reply-status-group");
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         // Configure via properties only (no instance passed)
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ErrorHandlingDeserializer.class);
@@ -157,7 +157,7 @@ public class KafkaConfig {
         if (!StringUtils.hasText(cluster2Bootstrap)) return null;
         Map<String, Object> props = new HashMap<>();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, cluster2Bootstrap);
-        props.put(ConsumerConfig.GROUP_ID_CONFIG, "payload-status-group");
+        props.put(ConsumerConfig.GROUP_ID_CONFIG, "reply-status-group");
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ErrorHandlingDeserializer.class);
         props.put(ErrorHandlingDeserializer.VALUE_DESERIALIZER_CLASS, JsonDeserializer.class.getName());
@@ -172,7 +172,7 @@ public class KafkaConfig {
         if (!StringUtils.hasText(cluster3Bootstrap)) return null;
         Map<String, Object> props = new HashMap<>();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, cluster3Bootstrap);
-        props.put(ConsumerConfig.GROUP_ID_CONFIG, "payload-status-group");
+        props.put(ConsumerConfig.GROUP_ID_CONFIG, "reply-status-group");
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ErrorHandlingDeserializer.class);
         props.put(ErrorHandlingDeserializer.VALUE_DESERIALIZER_CLASS, JsonDeserializer.class.getName());

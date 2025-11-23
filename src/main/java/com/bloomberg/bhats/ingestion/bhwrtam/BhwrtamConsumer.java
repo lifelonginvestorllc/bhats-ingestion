@@ -12,7 +12,7 @@ public class BhwrtamConsumer {
     @Autowired
     private KafkaPayloadProcessor kafkaPayloadProcessor;
 
-    @KafkaListener(topics = "payload-topic", groupId = "payload-group")
+    @KafkaListener(topics = "ingest-payload-topic", groupId = "ingest-payload-group")
     public void listen(ConsumerRecord<String, Payload> record) {
         try {
             kafkaPayloadProcessor.submitKafkaPayload(record.value());
