@@ -1,6 +1,6 @@
 package com.example.payload.bhwrtam;
 
-public enum BatchStatus {
+public enum SubBatchStatus {
     SUCCESS,
     FAILURE
 }

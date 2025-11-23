@@ -1,6 +1,5 @@
 package com.example.payload.bhwrtam;
 
-import com.example.payload.SubBatch;
 import com.example.payload.common.TSValues;
 import com.example.payload.bhpubwrt.BhpubwrtProducer;
 import com.example.payload.bhpubwrt.PayloadStatus;
@@ -122,9 +121,9 @@ public class KafkaPayloadProcessor {
 				}
 				try {
 					processBatch(batch);
-					tracker.update(batch.payloadId, batch.index, BatchStatus.SUCCESS);
+					tracker.update(batch.payloadId, batch.index, SubBatchStatus.SUCCESS);
 				} catch (Exception e) {
-					tracker.update(batch.payloadId, batch.index, BatchStatus.FAILURE);
+					tracker.update(batch.payloadId, batch.index, SubBatchStatus.FAILURE);
 				}
 			} catch (InterruptedException e) {
 				Thread.currentThread().interrupt();
