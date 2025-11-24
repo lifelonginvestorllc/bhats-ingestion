@@ -29,5 +29,12 @@ public class Payload {
         this.dataPayloads = dataPayloads;
     }
 
+    public String getUniqueBatchId() {
+        return bhatsJobId + "-batch" + batchId;
+    }
+
+    public String getUniqueSubBatchId() {
+        return getUniqueBatchId() + "-subBatch" + subBatchId;
+    }
 }
 
