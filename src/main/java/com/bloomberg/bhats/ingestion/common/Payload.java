@@ -4,7 +4,7 @@ import java.util.List;
 
 public class Payload {
     public String bhatsJobId;
-    public Integer partitionId;
+    public Integer batchId;
     public Integer subBatchId;
     public List<DataPayload> dataPayloads;
 
@@ -16,17 +16,18 @@ public class Payload {
         this.dataPayloads = dataPayloads;
     }
 
-    public Payload(String bhatsJobId, Integer partitionId, List<DataPayload> dataPayloads) {
+    public Payload(String bhatsJobId, Integer batchId, List<DataPayload> dataPayloads) {
         this.bhatsJobId = bhatsJobId;
-        this.partitionId = partitionId;
+        this.batchId = batchId;
         this.dataPayloads = dataPayloads;
     }
 
-    public Payload(String bhatsJobId, Integer partitionId, Integer subBatchId, List<DataPayload> dataPayloads) {
+    public Payload(String bhatsJobId, Integer batchId, Integer subBatchId, List<DataPayload> dataPayloads) {
         this.bhatsJobId = bhatsJobId;
-        this.partitionId = partitionId;
+        this.batchId = batchId;
         this.subBatchId = subBatchId;
         this.dataPayloads = dataPayloads;
     }
+
 }
 

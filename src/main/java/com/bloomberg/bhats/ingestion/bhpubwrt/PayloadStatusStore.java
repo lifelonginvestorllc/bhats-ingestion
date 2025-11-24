@@ -63,9 +63,9 @@ public class PayloadStatusStore {
             .findFirst()
             .orElse(null);
 
-        // Count unique partition IDs to verify all partitions completed
-        long uniquePartitions = subPayloadStatuses.values().stream()
-            .map(s -> s.partitionId)
+        // Count unique batch IDs to verify all batches completed
+        long uniqueBatches = subPayloadStatuses.values().stream()
+            .map(s -> s.batchId)
             .filter(p -> p != null)
             .distinct()
             .count();
@@ -76,10 +76,10 @@ public class PayloadStatusStore {
         aggregated.batchCount = totalBatchCount;
         aggregated.completedAt = maxCompletedAt;
         aggregated.clusterId = clusterId;
-        aggregated.partitionId = null; // Aggregated status doesn't have a single partition
+        aggregated.batchId = null; // Aggregated status doesn't have a single batch
 
-        System.out.printf("Aggregated status for %s: %d sub-payloads, %d unique partitions, success=%b%n",
-            originalJobId, subPayloadStatuses.size(), uniquePartitions, allSuccess);
+        System.out.printf("Aggregated status for %s: %d sub-payloads, %d unique batches, success=%b%n",
+            originalJobId, subPayloadStatuses.size(), uniqueBatches, allSuccess);
 
         return aggregated;
     }

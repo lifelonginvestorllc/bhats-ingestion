@@ -37,19 +37,19 @@ public class PayloadSplitter {
         Map<Integer, List<DataPayload>> partitionMap = new HashMap<>();
 
         for (DataPayload dataPayload : originalPayload.dataPayloads) {
-            int partitionId = getPartitionId(dataPayload.tsid);
-            partitionMap.computeIfAbsent(partitionId, k -> new ArrayList<>()).add(dataPayload);
+            int batchId = getPartitionId(dataPayload.tsid);
+            partitionMap.computeIfAbsent(batchId, k -> new ArrayList<>()).add(dataPayload);
         }
 
         // Create sub-payloads for each partition
         List<Payload> subPayloads = new ArrayList<>();
         for (Map.Entry<Integer, List<DataPayload>> entry : partitionMap.entrySet()) {
-            int partitionId = entry.getKey();
+            int batchId = entry.getKey();
             List<DataPayload> dataPayloads = entry.getValue();
 
-            // Create sub-payload with partitionId suffix in bhatsJobId and set partitionId
-            String subJobId = originalPayload.bhatsJobId + "-p" + partitionId;
-            Payload subPayload = new Payload(subJobId, partitionId, dataPayloads);
+            // Create sub-payload with batchId suffix in bhatsJobId and set batchId
+            String subJobId = originalPayload.bhatsJobId + "-p" + batchId;
+            Payload subPayload = new Payload(subJobId, batchId, dataPayloads);
             subPayloads.add(subPayload);
         }
 

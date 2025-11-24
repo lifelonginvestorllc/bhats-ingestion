@@ -6,7 +6,7 @@ class ClusterStatusAggregator {
     private final int expectedClusters;
     private final int expectedSubPayloads;
     private final java.util.List<PayloadStatus> received = new java.util.concurrent.CopyOnWriteArrayList<>();
-    private final java.util.Set<Integer> receivedPartitions = java.util.concurrent.ConcurrentHashMap.newKeySet();
+    private final java.util.Set<Integer> receivedBatchIds = java.util.concurrent.ConcurrentHashMap.newKeySet();
 
     ClusterStatusAggregator(int expectedClusters) {
         this(expectedClusters, 1);
@@ -19,15 +19,15 @@ class ClusterStatusAggregator {
 
     void add(PayloadStatus s) {
         received.add(s);
-        if (s.partitionId != null) {
-            receivedPartitions.add(s.partitionId);
+        if (s.batchId != null) {
+            receivedBatchIds.add(s.batchId);
         }
     }
 
     AggregatedPayloadStatus toAggregated() {
         int totalExpected = expectedClusters * expectedSubPayloads;
         boolean allReceived = received.size() >= totalExpected;
-        boolean allPartitionsReceived = receivedPartitions.size() >= expectedSubPayloads;
+        boolean allPartitionsReceived = receivedBatchIds.size() >= expectedSubPayloads;
         boolean allSuccess = allReceived && received.stream().allMatch(r -> r.success);
         boolean anySuccess = received.stream().anyMatch(r -> r.success);
 
@@ -38,7 +38,7 @@ class ClusterStatusAggregator {
         received.forEach(r -> clusters.add(r.clusterId));
 
         System.out.printf("Status aggregation: received=%d/%d, partitions=%d/%d, success=%b%n",
-            received.size(), totalExpected, receivedPartitions.size(), expectedSubPayloads, allSuccess);
+            received.size(), totalExpected, receivedBatchIds.size(), expectedSubPayloads, allSuccess);
 
         return new AggregatedPayloadStatus(allReceived && allPartitionsReceived, allSuccess, anySuccess,
             totalBatchCount, received.size(), clusters);

@@ -34,7 +34,7 @@ public class KafkaPayloadProcessor {
     private final AtomicInteger successfulPayloads = new AtomicInteger(0);
     private final List<String> successfulPayloadIds = Collections.synchronizedList(new ArrayList<>());
     private final ConcurrentMap<String, Integer> payloadBatchSizes = new ConcurrentHashMap<>();
-    private final ConcurrentMap<String, Integer> payloadPartitionIds = new ConcurrentHashMap<>();
+    private final ConcurrentMap<String, Integer> payloadBatchIds = new ConcurrentHashMap<>();
 
     @Autowired(required = false)
     private StatusPublisher statusPublisher; // optional injection for status publishing
@@ -104,9 +104,9 @@ public class KafkaPayloadProcessor {
         tracker.init(bhatsJobId, batchCount);
         payloadBatchSizes.put(bhatsJobId, batchCount); // track batch size per payload
 
-        // Store partition ID if available (maybe null for direct calls or non-partitioned payloads)
-        if (payload.partitionId != null) {
-            payloadPartitionIds.put(bhatsJobId, payload.partitionId);
+        // Store batch ID if available (maybe null for direct calls or non-partitioned payloads)
+        if (payload.batchId != null) {
+            payloadBatchIds.put(bhatsJobId, payload.batchId);
         }
 
         // Create Payload for each queue and submit to the corresponding blocking queue
@@ -114,7 +114,7 @@ public class KafkaPayloadProcessor {
             int subBatchId = entry.getKey();
             List<DataPayload> dataPayloads = entry.getValue();
 
-            Payload subBatchPayload = new Payload(bhatsJobId, payload.partitionId, subBatchId, dataPayloads);
+            Payload subBatchPayload = new Payload(bhatsJobId, payload.batchId, subBatchId, dataPayloads);
             queueMap.get(subBatchId).put(subBatchPayload);
         }
     }
@@ -151,7 +151,7 @@ public class KafkaPayloadProcessor {
     }
 
     private void processBatch(Payload batch) {
-        System.out.printf("Processing payload bhatsJobId=%s, partitionId=%d, subBatchId=%d with %d dataPayloads%n", batch.bhatsJobId, batch.partitionId,
+        System.out.printf("Processing payload bhatsJobId=%s, batchId=%d, subBatchId=%d with %d dataPayloads%n", batch.bhatsJobId, batch.batchId,
                 batch.subBatchId, batch.dataPayloads.size());
 
         if (failKey != null && !failKey.isBlank()) {
@@ -177,15 +177,15 @@ public class KafkaPayloadProcessor {
             successfulPayloadIds.add(bhatsJobId);
         }
         int batchSize = payloadBatchSizes.getOrDefault(bhatsJobId, 0);
-        Integer partitionId = payloadPartitionIds.getOrDefault(bhatsJobId, null);
+        Integer batchId = payloadBatchIds.getOrDefault(bhatsJobId, null);
         if (statusPublisher != null) {
             // send a single status; three consumer groups will each create their own
             // cluster-tagged reply
             PayloadStatus status = new PayloadStatus(bhatsJobId, success, batchSize, null);
-            status.partitionId = partitionId;
+            status.batchId = batchId;
             statusPublisher.publishStatus(status);
         }
         payloadBatchSizes.remove(bhatsJobId); // cleanup
-        payloadPartitionIds.remove(bhatsJobId); // cleanup
+        payloadBatchIds.remove(bhatsJobId); // cleanup
     }
 }

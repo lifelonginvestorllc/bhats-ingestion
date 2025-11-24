@@ -36,9 +36,9 @@ public class BhpubwrtProducer implements StatusPublisher {
 		// Split payload into sub-payloads based on partition
 		List<Payload> subPayloads = payloadSplitter.split(payload);
 
-		// Send each sub-payload to Kafka with its partitionId
+		// Send each sub-payload to Kafka with its batchId
 		for (Payload subPayload : subPayloads) {
-			kafkaTemplate.send(REQUEST_TOPIC, subPayload.partitionId, null, subPayload);
+			kafkaTemplate.send(REQUEST_TOPIC, subPayload.batchId, null, subPayload);
 		}
 
 		// Initialize aggregator expecting 3 cluster replies for the original job
@@ -50,11 +50,6 @@ public class BhpubwrtProducer implements StatusPublisher {
 	@Override
 	public void publishStatus(PayloadStatus status) {
 		statusKafkaTemplate.send(REPLY_TOPIC, status.bhatsJobId, status);
-	}
-
-	// Deprecated: use publishStatus instead
-	public void sendStatus(PayloadStatus status) {
-		publishStatus(status);
 	}
 
 	// Called by status consumers when each cluster replies

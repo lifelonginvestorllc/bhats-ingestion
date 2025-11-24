@@ -102,20 +102,20 @@ public class PayloadSplitterTest {
         Payload payload = new Payload("job-1", dataPayloads);
         List<Payload> subPayloads = splitter.split(payload);
 
-        // Verify each sub-payload has partitionId set correctly
+        // Verify each sub-payload has batchId set correctly
         for (Payload subPayload : subPayloads) {
-            assertNotNull(subPayload.partitionId, "Sub-payload should have partitionId set");
-            assertTrue(subPayload.partitionId >= 0 && subPayload.partitionId < 3,
-                "PartitionId should be in valid range");
+            assertNotNull(subPayload.batchId, "Sub-payload should have batchId set");
+            assertTrue(subPayload.batchId >= 0 && subPayload.batchId < 3,
+                "BatchId should be in valid range");
 
-            // Verify the job ID suffix matches the partition ID
-            assertTrue(subPayload.bhatsJobId.endsWith("-p" + subPayload.partitionId),
-                "Job ID suffix should match partitionId");
+            // Verify the job ID suffix matches the batch ID
+            assertTrue(subPayload.bhatsJobId.endsWith("-p" + subPayload.batchId),
+                "Job ID suffix should match batchId");
 
             // Verify all tsids in this sub-payload map to the same partition
             for (DataPayload dp : subPayload.dataPayloads) {
-                assertEquals(subPayload.partitionId, splitter.getPartitionId(dp.tsid),
-                    "All tsids in sub-payload should map to the sub-payload's partitionId");
+                assertEquals(subPayload.batchId, splitter.getPartitionId(dp.tsid),
+                    "All tsids in sub-payload should map to the sub-payload's batchId");
             }
         }
     }
